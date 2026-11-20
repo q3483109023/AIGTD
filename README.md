@@ -76,3 +76,55 @@ Each OOF base model is trained on about 70.6%-71.0% of the original training row
 - There are normalized duplicate-text groups appearing in validation portions of multiple folds. Per-fold train/validation text overlap is still zero, but the OOF meta-table can contain repeated text groups. The later meta-model stage should compare ordinary sentence-row weighting with an inverse-text-frequency weighting ablation; do not silently delete conflicting-label examples.
 - The 45 conflicting-label normalized-text groups remain in data. Do not relabel or remove them automatically.
 - This stage does not fit a meta-classifier or select a final fusion threshold.
+
+## Stage 2: Context-window OOF experiment (strict window purge)
+
+This experiment compares two models on the EXACT same prepared fold rows:
+- `sentence_matched`: RoBERTa receives only the target sentence.
+- `context`: RoBERTa receives previous + target + next sentence.
+
+Both use source-ID grouped 5-fold OOF, fixed 3 epochs (no outer-fold early stopping), the same model/configuration, class-weighted loss, and identical strict window-purged training rows. This matched control is necessary: comparing context against the old sentence-only OOF would confound context with the stricter purge/data-volume change.
+
+### Step 1: Prepare and audit context windows
+
+```bash
+python scripts/prepare_context_oof_folds.py \
+  --train data/splits/train.csv \
+  --validation data/splits/validation.csv \
+  --row-manifest results/oof_purged_group_audit/row_fold_manifest.csv \
+  --output-dir data/context_oof_folds \
+  --n-splits 5 \
+  --context-window 1
+```
+
+The script builds windows on complete article records before selecting target rows. A candidate training row is purged if ANY normalized sentence component in its previous/target/next window appears in an outer validation window OR in a Novel Validation target window. It asserts zero component overlap, source-ID overlap, and article-key overlap. Novel target rows are selected using the existing exact normalized target-sentence definition, but their context is built from the full validation article sequence.
+
+Inspect `data/context_oof_folds/fold_purge_balance.csv` before training. If a fold has very few rows, extreme purge rate, or class imbalance, stop and review rather than weakening the purge without documenting a new protocol.
+
+### Step 2: Train the matched sentence-only control
+
+```bash
+python scripts/train_context_oof.py \
+  --config configs/experiment.yaml \
+  --folds-dir data/context_oof_folds \
+  --output-dir results/context_oof \
+  --model-dir models/oof/context_sentence_matched \
+  --n-splits 5 --epochs 3 \
+  --input-column text --run-name sentence_matched
+```
+
+### Step 3: Train the context model
+
+```bash
+python scripts/train_context_oof.py \
+  --config configs/experiment.yaml \
+  --folds-dir data/context_oof_folds \
+  --output-dir results/context_oof \
+  --model-dir models/oof/context \
+  --n-splits 5 --epochs 3 \
+  --input-column context_text --run-name context
+```
+
+Each run writes OOF predictions (one prediction per original train row), five-fold Novel Validation predictions, fold summaries, and fold checkpoints. Compare `sentence_matched` against `context` first; the old `roberta_oof_predictions.csv` is a secondary historical reference because its target-only purge is less strict.
+
+No threshold tuning, stacking refit, or final test prediction is performed by these scripts. Evaluate paired OOF metrics and article/source-cluster bootstrap first. Novel fold predictions are diagnostic validation results, not an independent test set.
