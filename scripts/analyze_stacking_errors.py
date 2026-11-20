@@ -43,10 +43,13 @@ PREDICTIONS = {
     "svm": "svm_pred_oof_threshold",
     "veto": "veto_pred",
 }
+# Scores must be comparable across the five assigned folds for pooled AUC/AP.
+# Base-model raw probabilities are fold-local; use the per-fold OOF-standardized
+# scores that were also used to train the stacker and select the thresholds.
 SCORE_COLUMNS = {
     "stacker": "stacker_p_machine",
-    "roberta": "roberta_p_machine",
-    "svm": "svm_p_machine",
+    "roberta": "roberta_z",
+    "svm": "svm_z",
 }
 
 
@@ -109,8 +112,7 @@ def validate_and_load(path: Path) -> Tuple[pd.DataFrame, List[str]]:
         "novel_row_id", "article_id", "article_key", "sentence_index",
         "text", "label_id", "y_true", "domain", "assigned_fold",
         "stacker_p_machine", "stacker_pred", "roberta_pred_oof_threshold",
-        "svm_pred_oof_threshold", "veto_pred", "roberta_p_machine",
-        "svm_p_machine",
+        "svm_pred_oof_threshold", "veto_pred", "roberta_z", "svm_z",
     }
     missing = sorted(required - set(df.columns))
     if missing:
@@ -136,6 +138,10 @@ def validate_and_load(path: Path) -> Tuple[pd.DataFrame, List[str]]:
         errors.append(f"y_true 存在非二元值或缺失：{y_values}")
     if df["assigned_fold"].isna().any():
         errors.append("assigned_fold 存在缺失")
+    for score_col in SCORE_COLUMNS.values():
+        scores = pd.to_numeric(df[score_col], errors="coerce").to_numpy(dtype=float)
+        if not np.isfinite(scores).all():
+            errors.append(f"{score_col} 存在非数值或非有限值")
     # Each article record must map to exactly one source ID.
     a_source = df.groupby("article_key", dropna=False)["article_id"].nunique(dropna=False)
     if (a_source > 1).any():
@@ -189,16 +195,16 @@ def group_summary(df: pd.DataFrame, group_col: str = "comparison_group") -> pd.D
             "median_word_count": g["word_count_analysis"].median(),
             "mean_char_count": g["text"].fillna("").astype(str).str.len().mean(),
             "mean_punctuation_count": g["text"].fillna("").astype(str).map(lambda s: len(re.findall(r"[^\w\s]", s))).mean(),
-            "mean_svm_score": g["svm_p_machine"].mean(),
-            "mean_roberta_score": g["roberta_p_machine"].mean(),
-            "mean_stacker_score": g["stacker_p_machine"].mean(),
+            "mean_svm_z": g["svm_z"].mean(),
+            "mean_roberta_z": g["roberta_z"].mean(),
+            "mean_stacker_probability": g["stacker_p_machine"].mean(),
             "unique_article_keys": g["article_key"].nunique(),
             "unique_source_ids": g["article_id"].nunique(),
         })
     return pd.DataFrame(rows)
 
 
-def per_model_error_files(df: pd.DataFrame, outdir: Path) -> None:
+def per_model_error_files(df: pd.DataFrame, outdir: Path, thresholds: Dict[str, float]) -> None:
     y = df["y_true"].astype(int)
     for model, pred_col in PREDICTIONS.items():
         err = df.loc[df[pred_col].astype(int).ne(y)].copy()
@@ -212,7 +218,9 @@ def per_model_error_files(df: pd.DataFrame, outdir: Path) -> None:
         )
         score_col = SCORE_COLUMNS.get(model)
         if score_col:
-            err["distance_to_0_5"] = (err[score_col] - 0.5).abs()
+            margin = err[score_col].astype(float) - thresholds[model]
+            err["decision_margin"] = margin
+            err["distance_to_decision_threshold"] = margin.abs()
         # Deterministic examples: up to 50 rows, sorted by word count then source ID.
         err.sort_values(["word_count_analysis", "article_id", "sentence_index"], inplace=True)
         err.head(50).to_csv(outdir / f"{model}_error_examples.csv", index=False, encoding="utf-8-sig")
@@ -300,6 +308,8 @@ def main() -> int:
     parser.add_argument("--output-dir", default="results/stacking_error_analysis")
     parser.add_argument("--bootstrap-reps", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--fusion-config", default="results/oof_fusion/fusion_config.json",
+                        help="OOF-selected decision thresholds used by the saved prediction columns.")
     args = parser.parse_args()
 
     input_path = Path(args.input)
@@ -315,6 +325,21 @@ def main() -> int:
     n = len(df)
     if n != df["novel_row_id"].nunique():
         raise ValueError("novel_row_id not unique after sorting")
+
+    config_path = Path(args.fusion_config)
+    if not config_path.exists():
+        raise FileNotFoundError(f"融合配置文件不存在：{config_path}")
+    with config_path.open("r", encoding="utf-8") as f:
+        fusion_config = json.load(f)
+    threshold_keys = {
+        "stacker": "stacker_threshold",
+        "roberta": "roberta_threshold_z",
+        "svm": "svm_threshold_z",
+    }
+    missing_thresholds = [key for key in threshold_keys.values() if key not in fusion_config]
+    if missing_thresholds:
+        raise ValueError(f"融合配置缺少阈值字段：{missing_thresholds}")
+    thresholds = {name: float(fusion_config[key]) for name, key in threshold_keys.items()}
 
     # Metrics for all models.
     metric_rows = []
@@ -340,7 +365,7 @@ def main() -> int:
             )
 
     # Cross-comparison with all models; useful to understand SVM/Veto too.
-    per_model_error_files(df, outdir)
+    per_model_error_files(df, outdir, thresholds)
 
     # Domain and sentence-length subgroup metrics.
     df["length_bucket"] = pd.cut(
@@ -445,6 +470,9 @@ def main() -> int:
         "- FP means human(0) predicted machine(1); FN means machine(1) predicted human(0).",
         "- Group and subgroup differences are descriptive; do not infer causal mechanisms from sentence style.",
         "- Cluster bootstrap resamples whole groups and computes paired metric differences on identical resamples.",
+        "- Stacker AUC/AP use stacker_p_machine; base-model AUC/AP use per-fold standardized svm_z/roberta_z.",
+        "- Raw SVM/RoBERTa fold probabilities are not pooled for AUC/AP because their fold-local scales differ.",
+        "- Error-example margins are measured against the OOF-selected threshold loaded from fusion_config.json.",
     ]
     (outdir / "summary.txt").write_text("\n".join(lines), encoding="utf-8")
 
