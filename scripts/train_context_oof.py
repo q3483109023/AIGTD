@@ -68,6 +68,8 @@ def main() -> None:
     p.add_argument("--train-batch-size", type=int, default=None)
     p.add_argument("--eval-batch-size", type=int, default=None)
     p.add_argument("--device", default=None, help="auto, cuda, or cpu")
+    p.add_argument("--input-column", choices=["text", "context_text"], default="context_text", help="text gives a matched sentence-only control on identical purged rows.")
+    p.add_argument("--run-name", default="context", help="Output/checkpoint prefix.")
     a = p.parse_args()
     if a.epochs < 1: raise ValueError("--epochs must be >= 1")
     config_path = Path(a.config)
@@ -96,7 +98,7 @@ def main() -> None:
     if train_bs < 1 or eval_bs < 1: raise ValueError("Batch sizes must be positive.")
     output_dir.mkdir(parents=True, exist_ok=True); model_root.mkdir(parents=True, exist_ok=True)
     novel = pd.read_csv(novel_path, encoding="utf-8-sig")
-    if novel.empty or "context_text" not in novel: raise ValueError("Novel validation empty or missing context_text.")
+    if novel.empty or a.input_column not in novel: raise ValueError(f"Novel validation empty or missing {a.input_column}.")
     all_oof, all_novel, summaries = [], [], []
     print(f"Model={model_name}; device={device}; epochs/fold={a.epochs}; max_length={max_length}")
     print(f"Novel targets={len(novel):,}; window={manifest['context_window']}")
@@ -107,15 +109,15 @@ def main() -> None:
         if not train_path.exists() or not val_path.exists(): raise FileNotFoundError(f"Missing fold {fold} files.")
         train_df, val_df = pd.read_csv(train_path, encoding="utf-8-sig"), pd.read_csv(val_path, encoding="utf-8-sig")
         for name, frame in (("train", train_df), ("validation", val_df)):
-            if "context_text" not in frame or "label_id" not in frame: raise ValueError(f"Fold {fold} {name} missing context_text/label_id.")
+            if a.input_column not in frame or "label_id" not in frame: raise ValueError(f"Fold {fold} {name} missing {a.input_column}/label_id.")
         y = train_df["label_id"].astype(int).to_numpy()
         if set(np.unique(y)) != {0, 1}: raise ValueError(f"Fold {fold} training requires both classes.")
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2).to(device)
         collate = make_collate(tokenizer, max_length)
-        train_loader = DataLoader(ContextDataset(train_df["context_text"].tolist(), y.tolist()), batch_size=train_bs, shuffle=True, num_workers=workers, collate_fn=collate, pin_memory=(device.type == "cuda"))
-        val_loader = DataLoader(ContextDataset(val_df["context_text"].tolist()), batch_size=eval_bs, shuffle=False, num_workers=workers, collate_fn=collate, pin_memory=(device.type == "cuda"))
-        novel_loader = DataLoader(ContextDataset(novel["context_text"].tolist()), batch_size=eval_bs, shuffle=False, num_workers=workers, collate_fn=collate, pin_memory=(device.type == "cuda"))
+        train_loader = DataLoader(ContextDataset(train_df[a.input_column].tolist(), y.tolist()), batch_size=train_bs, shuffle=True, num_workers=workers, collate_fn=collate, pin_memory=(device.type == "cuda"))
+        val_loader = DataLoader(ContextDataset(val_df[a.input_column].tolist()), batch_size=eval_bs, shuffle=False, num_workers=workers, collate_fn=collate, pin_memory=(device.type == "cuda"))
+        novel_loader = DataLoader(ContextDataset(novel[a.input_column].tolist()), batch_size=eval_bs, shuffle=False, num_workers=workers, collate_fn=collate, pin_memory=(device.type == "cuda"))
         counts = np.bincount(y, minlength=2).astype(np.float32)
         if (counts == 0).any(): raise ValueError(f"Fold {fold} empty class after purge: {counts.tolist()}")
         weights = counts.sum() / (2.0 * counts) if weighted else np.ones(2, dtype=np.float32)
@@ -133,15 +135,15 @@ def main() -> None:
                 total += float(loss.item()) * labels.size(0); seen += labels.size(0)
             epoch_loss = total / max(seen, 1); history.append({"epoch": epoch, "train_loss": epoch_loss})
             print(f"[Context OOF] fold={fold} epoch={epoch}/{a.epochs} train_loss={epoch_loss:.4f}")
-        model_dir = model_root / f"context_fold_{fold}"; model_dir.mkdir(parents=True, exist_ok=True)
+        model_dir = model_root / f"{a.run_name}_fold_{fold}"; model_dir.mkdir(parents=True, exist_ok=True)
         model.save_pretrained(model_dir); tokenizer.save_pretrained(model_dir)
         pd.DataFrame(history).to_csv(model_dir / "training_history.csv", index=False, encoding="utf-8-sig")
         metadata = {
-            "model_type": "context", "model_name": model_name, "fold": fold, "epochs": a.epochs,
+            "model_type": a.run_name, "input_column": a.input_column, "model_name": model_name, "fold": fold, "epochs": a.epochs,
             "max_length": max_length, "context_window": int(manifest["context_window"]),
             "train_rows": len(train_df), "validation_rows": len(val_df), "class_weighted_loss": weighted,
             "seed": seed + fold, "outer_oof_validation_used_for_early_stopping": False,
-            "window_purge_strategy": manifest["fold_strategy"],
+            "window_purge_strategy": manifest["fold_strategy"], "training_input_column": a.input_column,
         }
         (model_dir / "oof_metadata.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
         vm, vp = infer(model, val_loader, device); nm, npb = infer(model, novel_loader, device)
@@ -155,12 +157,12 @@ def main() -> None:
     if len(oof) != expected or oof["oof_row_id"].nunique() != expected or oof["oof_row_id"].duplicated().any():
         raise RuntimeError("OOF predictions do not cover each training row exactly once.")
     if len(novel_all) != len(novel) * a.n_splits: raise RuntimeError("Novel prediction count mismatch.")
-    oof.to_csv(output_dir / "context_oof_predictions.csv", index=False, encoding="utf-8-sig")
-    novel_all.to_csv(output_dir / "context_novel_fold_predictions.csv", index=False, encoding="utf-8-sig")
-    pd.DataFrame(summaries).to_csv(output_dir / "context_oof_fold_summary.csv", index=False, encoding="utf-8-sig")
+    oof.to_csv(output_dir / f"{a.run_name}_oof_predictions.csv", index=False, encoding="utf-8-sig")
+    novel_all.to_csv(output_dir / f"{a.run_name}_novel_fold_predictions.csv", index=False, encoding="utf-8-sig")
+    pd.DataFrame(summaries).to_csv(output_dir / f"{a.run_name}_oof_fold_summary.csv", index=False, encoding="utf-8-sig")
     print("\n[Context OOF] Completed.")
-    print(f"OOF predictions: {len(oof):,} -> {output_dir / 'context_oof_predictions.csv'}")
-    print(f"Novel fold predictions: {len(novel_all):,} -> {output_dir / 'context_novel_fold_predictions.csv'}")
+    print(f"OOF predictions: {len(oof):,} -> {output_dir / (a.run_name + '_oof_predictions.csv')}")
+    print(f"Novel fold predictions: {len(novel_all):,} -> {output_dir / (a.run_name + '_novel_fold_predictions.csv')}")
 
 
 if __name__ == "__main__":
