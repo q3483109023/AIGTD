@@ -222,7 +222,7 @@ def per_model_error_files(df: pd.DataFrame, outdir: Path, thresholds: Dict[str, 
             err["decision_margin"] = margin
             err["distance_to_decision_threshold"] = margin.abs()
         # Deterministic examples: up to 50 rows, sorted by word count then source ID.
-        err.sort_values(["word_count_analysis", "article_id", "sentence_index"], inplace=True)
+        err = err.sort_values(["word_count_analysis", "article_id", "sentence_index"])
         err.head(50).to_csv(outdir / f"{model}_error_examples.csv", index=False, encoding="utf-8-sig")
 
 
