@@ -1,0 +1,33 @@
+NOVEL_VALIDATION 模型比较
+==========================================================
+样本数：11,682
+标签分布：human=4,613 | machine=7,069
+
+TF-IDF+LinearSVC
+  accuracy             0.8901
+  precision_machine    0.9099
+  recall_machine       0.9083
+  macro_f1             0.8851
+  micro_f1             0.8901
+  f1_human             0.8610
+  f1_machine           0.9091
+  confusion matrix: TN=3,977, FP=636, FN=648, TP=6,421
+
+RoBERTa
+  accuracy             0.8996
+  precision_machine    0.8755
+  recall_machine       0.9723
+  macro_f1             0.8912
+  micro_f1             0.8996
+  f1_human             0.8611
+  f1_machine           0.9214
+  confusion matrix: TN=3,636, FP=977, FN=196, TP=6,873
+
+模型互补性
+  both_correct             9,676 (82.83%)
+  svm_only_correct           722 (6.18%)
+  roberta_only_correct       833 (7.13%)
+  both_wrong                 451 (3.86%)
+  两模型预测不一致：1,555 (13.31%)
+
+说明：y_pred 来自各模型现有预测文件，使用模型各自已选定的阈值；本脚本不重新搜索阈值。

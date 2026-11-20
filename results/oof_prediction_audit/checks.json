@@ -1,0 +1,195 @@
+{
+  "checks": [
+    {
+      "name": "SVM OOF row coverage exactly once",
+      "passed": true,
+      "detail": "rows=52864, unique=52864, expected=52864"
+    },
+    {
+      "name": "SVM OOF duplicate oof_row_id",
+      "passed": true,
+      "detail": "duplicates=0"
+    },
+    {
+      "name": "RoBERTa OOF row coverage exactly once",
+      "passed": true,
+      "detail": "rows=52864, unique=52864, expected=52864"
+    },
+    {
+      "name": "RoBERTa OOF duplicate oof_row_id",
+      "passed": true,
+      "detail": "duplicates=0"
+    },
+    {
+      "name": "SVM/RoBERTa OOF aligned",
+      "passed": true,
+      "detail": "keyed by oof_row_id"
+    },
+    {
+      "name": "Fold 0 source-ID isolation",
+      "passed": true,
+      "detail": "overlap=0"
+    },
+    {
+      "name": "Fold 0 normalized-text purge",
+      "passed": true,
+      "detail": "overlap_groups=0"
+    },
+    {
+      "name": "Fold 1 source-ID isolation",
+      "passed": true,
+      "detail": "overlap=0"
+    },
+    {
+      "name": "Fold 1 normalized-text purge",
+      "passed": true,
+      "detail": "overlap_groups=0"
+    },
+    {
+      "name": "Fold 2 source-ID isolation",
+      "passed": true,
+      "detail": "overlap=0"
+    },
+    {
+      "name": "Fold 2 normalized-text purge",
+      "passed": true,
+      "detail": "overlap_groups=0"
+    },
+    {
+      "name": "Fold 3 source-ID isolation",
+      "passed": true,
+      "detail": "overlap=0"
+    },
+    {
+      "name": "Fold 3 normalized-text purge",
+      "passed": true,
+      "detail": "overlap_groups=0"
+    },
+    {
+      "name": "Fold 4 source-ID isolation",
+      "passed": true,
+      "detail": "overlap=0"
+    },
+    {
+      "name": "Fold 4 normalized-text purge",
+      "passed": true,
+      "detail": "overlap_groups=0"
+    },
+    {
+      "name": "Fold validation rows cover training rows",
+      "passed": true,
+      "detail": "rows=52864, unique=52864"
+    },
+    {
+      "name": "SVM OOF finite score/range check",
+      "passed": true,
+      "detail": "svm_decision_score:finite=True; svm_p_machine:finite=True; svm_p_machine in [0,1]=True"
+    },
+    {
+      "name": "RoBERTa OOF finite score/range check",
+      "passed": true,
+      "detail": "roberta_logit_margin:finite=True; roberta_p_machine:finite=True; roberta_p_machine in [0,1]=True"
+    },
+    {
+      "name": "SVM Novel finite score/range check",
+      "passed": true,
+      "detail": "svm_decision_score:finite=True; svm_p_machine:finite=True; svm_p_machine in [0,1]=True"
+    },
+    {
+      "name": "RoBERTa Novel finite score/range check",
+      "passed": true,
+      "detail": "roberta_logit_margin:finite=True; roberta_p_machine:finite=True; roberta_p_machine in [0,1]=True"
+    },
+    {
+      "name": "SVM Novel has every Novel row once per fold",
+      "passed": true,
+      "detail": "fold0=11682 rows/11682 IDs; fold1=11682 rows/11682 IDs; fold2=11682 rows/11682 IDs; fold3=11682 rows/11682 IDs; fold4=11682 rows/11682 IDs"
+    },
+    {
+      "name": "RoBERTa Novel has every Novel row once per fold",
+      "passed": true,
+      "detail": "fold0=11682 rows/11682 IDs; fold1=11682 rows/11682 IDs; fold2=11682 rows/11682 IDs; fold3=11682 rows/11682 IDs; fold4=11682 rows/11682 IDs"
+    },
+    {
+      "name": "SVM Novel fold 0 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "SVM Novel fold 1 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "SVM Novel fold 2 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "SVM Novel fold 3 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "SVM Novel fold 4 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "SVM Novel y_true equals label_id",
+      "passed": true,
+      "detail": "mismatches=0"
+    },
+    {
+      "name": "RoBERTa Novel fold 0 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "RoBERTa Novel fold 1 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "RoBERTa Novel fold 2 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "RoBERTa Novel fold 3 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "RoBERTa Novel fold 4 matches canonical Novel Validation",
+      "passed": true,
+      "detail": "11682 rows"
+    },
+    {
+      "name": "RoBERTa Novel y_true equals label_id",
+      "passed": true,
+      "detail": "mismatches=0"
+    },
+    {
+      "name": "SVM OOF y_true equals label_id",
+      "passed": true,
+      "detail": "mismatches=0"
+    },
+    {
+      "name": "SVM OOF fold values valid",
+      "passed": true,
+      "detail": "invalid=0"
+    },
+    {
+      "name": "RoBERTa OOF y_true equals label_id",
+      "passed": true,
+      "detail": "mismatches=0"
+    },
+    {
+      "name": "RoBERTa OOF fold values valid",
+      "passed": true,
+      "detail": "invalid=0"
+    }
+  ],
+  "issues": []
+}

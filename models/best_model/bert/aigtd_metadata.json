@@ -1,0 +1,20 @@
+{
+  "model_type": "bert",
+  "model_name": "roberta-base",
+  "max_length": 256,
+  "context_window": 0,
+  "threshold": 0.8000000000000005,
+  "threshold_selection_metric": "novel_macro_f1",
+  "checkpoint_selection_metric": "novel_validation_macro_f1_at_0.5",
+  "best_epoch": 3,
+  "best_novel_validation_macro_f1_at_0.5": 0.8860338358560058,
+  "class_weighted_loss": true,
+  "seed": 42,
+  "novel_validation_count": 11682,
+  "full_validation_count": 13607,
+  "novel_text_normalization": "Unicode NFKC + casefold + whitespace normalization; punctuation retained",
+  "label_to_id": {
+    "human": 0,
+    "machine": 1
+  }
+}

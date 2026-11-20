@@ -1,0 +1,33 @@
+FULL_VALIDATION 模型比较
+==========================================================
+样本数：13,607
+标签分布：human=4,687 | machine=8,920
+
+TF-IDF+LinearSVC
+  accuracy             0.9031
+  precision_machine    0.9259
+  recall_machine       0.9263
+  macro_f1             0.8927
+  micro_f1             0.9031
+  f1_human             0.8593
+  f1_machine           0.9261
+  confusion matrix: TN=4,026, FP=661, FN=657, TP=8,263
+
+RoBERTa
+  accuracy             0.9111
+  precision_machine    0.8964
+  recall_machine       0.9772
+  macro_f1             0.8970
+  micro_f1             0.9111
+  f1_human             0.8588
+  f1_machine           0.9351
+  confusion matrix: TN=3,680, FP=1,007, FN=203, TP=8,717
+
+模型互补性
+  both_correct            11,560 (84.96%)
+  svm_only_correct           729 (5.36%)
+  roberta_only_correct       837 (6.15%)
+  both_wrong                 481 (3.53%)
+  两模型预测不一致：1,566 (11.51%)
+
+说明：y_pred 来自各模型现有预测文件，使用模型各自已选定的阈值；本脚本不重新搜索阈值。

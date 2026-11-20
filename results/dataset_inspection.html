@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIGTD 数据集审计报告</title><style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;line-height:1.6;margin:32px auto;padding:0 20px;max-width:1180px;color:#202938;background:#f7f8fa}
+h1,h2{color:#17324d} .panel{background:white;border:1px solid #e2e7ee;border-radius:12px;padding:20px;margin:18px 0;overflow-x:auto}
+.data-table{border-collapse:collapse;width:100%;font-size:14px} .data-table th,.data-table td{border-bottom:1px solid #e8edf2;padding:9px 11px;text-align:left;vertical-align:top;word-break:break-word}
+.data-table th{background:#f1f5f9} code{background:#eef2f7;padding:2px 5px;border-radius:4px} .muted{color:#64748b}
+</style></head><body>
+<h1>AIGTD 数据集审计报告</h1><p class="muted">生成时间：2026-11-20 15:42:55 · 训练格式：<code>id + sent_and_label + domain</code> · 测试格式：<code>id + sent + domain</code></p>
+<div class="panel"><h2>1. 数据概况</h2><h3>训练集概况</h3><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>检查项</th>
+      <th>结果</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>训练文件</td>
+      <td>/home/zhuangyr/dl-workspace/projects/AIGTD_project_starter/AIGTD/data/raw/AIGTD_train_sampled_5000.json</td>
+    </tr>
+    <tr>
+      <td>训练文章记录数</td>
+      <td>5,000</td>
+    </tr>
+    <tr>
+      <td>不同 source article_id 数</td>
+      <td>3,092</td>
+    </tr>
+    <tr>
+      <td>训练句子数</td>
+      <td>66,471</td>
+    </tr>
+    <tr>
+      <td>训练领域数</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>平均每篇句子数</td>
+      <td>13.29</td>
+    </tr>
+    <tr>
+      <td>句子词数分布</td>
+      <td>{"count": 66471, "mean": 18.91, "median": 18.0, "p90": 30.0, "max": 234, "min": 1}</td>
+    </tr>
+    <tr>
+      <td>同时含 human/machine 的文章</td>
+      <td>5,000</td>
+    </tr>
+    <tr>
+      <td>只含单一标签的文章</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>重复句子（按完全相同文本）</td>
+      <td>14,953</td>
+    </tr>
+    <tr>
+      <td>具有重复 source article_id 的 ID 数</td>
+      <td>1,364</td>
+    </tr>
+    <tr>
+      <td>重复 source article_id 额外记录数</td>
+      <td>1,908</td>
+    </tr>
+    <tr>
+      <td>训练/测试 article_id 交集</td>
+      <td>24</td>
+    </tr>
+  </tbody>
+</table><h3>无标签测试集概况</h3><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>检查项</th>
+      <th>结果</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>测试文件</td>
+      <td>/home/zhuangyr/dl-workspace/projects/AIGTD_project_starter/AIGTD/data/raw/AIGTD_test_without_labels.json</td>
+    </tr>
+    <tr>
+      <td>测试文章记录数</td>
+      <td>500</td>
+    </tr>
+    <tr>
+      <td>测试不同 source article_id 数</td>
+      <td>500</td>
+    </tr>
+    <tr>
+      <td>测试句子数</td>
+      <td>4,264</td>
+    </tr>
+    <tr>
+      <td>测试领域数</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>测试句子词数分布</td>
+      <td>{"count": 4264, "mean": 21.206, "median": 21.0, "p90": 31.0, "max": 90, "min": 1}</td>
+    </tr>
+  </tbody>
+</table></div>
+<div class="panel"><h2>2. 标签分布</h2><h3>训练集 Human/Machine 分布</h3><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>label</th>
+      <th>sentence_count</th>
+      <th>proportion</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>machine</td>
+      <td>44053</td>
+      <td>0.6627</td>
+    </tr>
+    <tr>
+      <td>human</td>
+      <td>22418</td>
+      <td>0.3373</td>
+    </tr>
+  </tbody>
+</table><h3>领域与标签分布</h3><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>label</th>
+      <th>domain</th>
+      <th>human</th>
+      <th>machine</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th></th>
+      <td>academic</td>
+      <td>21009</td>
+      <td>41406</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>news</td>
+      <td>1409</td>
+      <td>2647</td>
+    </tr>
+  </tbody>
+</table></div>
+<div class="panel"><h2>3. 文章分布</h2><h3>训练集各领域文章统计</h3><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>domain</th>
+      <th>article_count</th>
+      <th>sentence_count</th>
+      <th>mean_sentences</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>academic</td>
+      <td>4529</td>
+      <td>62415</td>
+      <td>13.78</td>
+    </tr>
+    <tr>
+      <td>news</td>
+      <td>471</td>
+      <td>4056</td>
+      <td>8.61</td>
+    </tr>
+  </tbody>
+</table></div>
+<div class="panel"><h2>4. 结构与质量检查</h2><ul><li>发现 14953 条重复句子；重复文本不自动删除，请检查是否跨文章或跨划分重复。</li><li>训练集中有 1364 个 source article_id 对应多条 JSON 文章记录；程序已使用 article_key 区分记录，并在数据切分时将相同 source article_id 放在同一分组。</li><li>训练与测试有 24 个相同 source article_id。由于训练文件本身存在重复 ID，仅凭 ID 相同不能判定数据泄漏，建议进一步比较文章文本内容。</li></ul><h3>重复 source article_id 示例（最多 30 个）</h3><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>article_id</th>
+      <th>record_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>992</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>8955</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>6672</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>8068</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>4043</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>21039</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>8148</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>16209</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>16647</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>15721</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>16907</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>15624</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>15597</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>15557</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>15429</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>15356</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>17412</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>16592</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>16025</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>10121</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>10392</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>8762</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>8677</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>1904</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>15231</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>8403</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>8425</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>8507</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>18238</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>19864</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table><p>注意：审计报告只提示潜在问题，不会自动删除重复文本或改变标签。</p></div>
+<div class="panel"><h2>5. 训练数据样本</h2><h3>前 12 条句子记录</h3><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>article_id</th>
+      <th>article_key</th>
+      <th>sentence_index</th>
+      <th>domain</th>
+      <th>text</th>
+      <th>label</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>0</td>
+      <td>academic</td>
+      <td>Should there be censorship in libraries?</td>
+      <td>human</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>1</td>
+      <td>academic</td>
+      <td>This would have to be a mixed answer, with a little bit of both sides.</td>
+      <td>human</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>2</td>
+      <td>academic</td>
+      <td>On one hand, some materials can be harmful or inappropriate for certain age groups.</td>
+      <td>machine</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>3</td>
+      <td>academic</td>
+      <td>On the other hand, censorship can limit freedom of speech and the diversity of ideas.</td>
+      <td>machine</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>4</td>
+      <td>academic</td>
+      <td>It is important to consider the age appropriateness of certain materials in libraries.</td>
+      <td>machine</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>5</td>
+      <td>academic</td>
+      <td>Children should not be exposed to explicit or violent content that they may not be able to fully understand.</td>
+      <td>machine</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>6</td>
+      <td>academic</td>
+      <td>For example, a book with graphic sexual content should not be readily available for young children to pick up.</td>
+      <td>machine</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>7</td>
+      <td>academic</td>
+      <td>However, there should be a system in place where parents or guardians can make the decision for their children.</td>
+      <td>machine</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>8</td>
+      <td>academic</td>
+      <td>A separate section for mature content or a labeling system could be implemented to help parents make informed decisions.</td>
+      <td>machine</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>9</td>
+      <td>academic</td>
+      <td>But censorship should not be taken too far.</td>
+      <td>machine</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>10</td>
+      <td>academic</td>
+      <td>Everyone has the right to access information and ideas, even if they may be controversial or offensive.</td>
+      <td>machine</td>
+    </tr>
+    <tr>
+      <td>5361</td>
+      <td>record_00000000</td>
+      <td>11</td>
+      <td>academic</td>
+      <td>Removing materials that some may find offensive sets a dangerous precedent.</td>
+      <td>machine</td>
+    </tr>
+  </tbody>
+</table></div>
+<div class="panel"><h2>6. 测试数据样本</h2><h3>前 12 条无标签句子记录</h3><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>article_id</th>
+      <th>article_key</th>
+      <th>sentence_index</th>
+      <th>domain</th>
+      <th>text</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1133</td>
+      <td>record_00000000</td>
+      <td>0</td>
+      <td>news</td>
+      <td>The Met Office has issued a weather warning as freezing fog and icy conditions are expected to hit various parts of the country.</td>
+    </tr>
+    <tr>
+      <td>1133</td>
+      <td>record_00000000</td>
+      <td>1</td>
+      <td>news</td>
+      <td>Untreated roads and pavements are likely to be very slippery as temperatures drop sharply overnight, with some rural areas seeing temperatures fall to -3 degrees Celsius.</td>
+    </tr>
+    <tr>
+      <td>1133</td>
+      <td>record_00000000</td>
+      <td>2</td>
+      <td>news</td>
+      <td>There is also the risk of freezing fog patches in some areas.</td>
+    </tr>
+    <tr>
+      <td>1133</td>
+      <td>record_00000000</td>
+      <td>3</td>
+      <td>news</td>
+      <td>Motorists and pedestrians are advised to take extra precautions and allow for extra travel time as the icy conditions could lead to hazardous driving and walking conditions.</td>
+    </tr>
+    <tr>
+      <td>1133</td>
+      <td>record_00000000</td>
+      <td>4</td>
+      <td>news</td>
+      <td>It is recommended to drive at reduced speeds and increase following distances to avoid accidents.</td>
+    </tr>
+    <tr>
+      <td>1133</td>
+      <td>record_00000000</td>
+      <td>5</td>
+      <td>news</td>
+      <td>Local authorities are preparing gritters to treat roads and ensure safer driving conditions, but individuals are urged to be vigilant and take necessary measures to stay safe during this period of inclement weather.</td>
+    </tr>
+    <tr>
+      <td>1133</td>
+      <td>record_00000000</td>
+      <td>6</td>
+      <td>news</td>
+      <td>Residents are advised to dress warmly and be cautious when venturing outdoors, especially during the early morning and late evening when temperatures are at their lowest.</td>
+    </tr>
+    <tr>
+      <td>1133</td>
+      <td>record_00000000</td>
+      <td>7</td>
+      <td>news</td>
+      <td>Keeping updated with weather forecasts and heeding any further warnings from authorities is crucial to staying safe during this challenging weather period.</td>
+    </tr>
+    <tr>
+      <td>2315</td>
+      <td>record_00000001</td>
+      <td>0</td>
+      <td>news</td>
+      <td>Is Westworld on Netflix?</td>
+    </tr>
+    <tr>
+      <td>2315</td>
+      <td>record_00000001</td>
+      <td>1</td>
+      <td>news</td>
+      <td>Fans of the hit sci-fi series Westworld may be wondering if they can catch up on all the action and intrigue by streaming the show on Netflix.</td>
+    </tr>
+    <tr>
+      <td>2315</td>
+      <td>record_00000001</td>
+      <td>2</td>
+      <td>news</td>
+      <td>Unfortunately, as of now, Westworld is not available on Netflix in the UK.</td>
+    </tr>
+    <tr>
+      <td>2315</td>
+      <td>record_00000001</td>
+      <td>3</td>
+      <td>news</td>
+      <td>Based on the 1973 film of the same name, Westworld is written and directed by celebrated novelist Michael Crichton and centres around a futuristic wild west-themed adventure experience park populated by "hosts" who are there to serve the every need and desire of the wealthy paying guests.</td>
+    </tr>
+  </tbody>
+</table></div>
+<div class="panel"><h2>7. 数据结构约定</h2><p>训练集每篇文章通过 <code>sent_and_label</code> 提供 <code>[sentence, label]</code>；测试集通过 <code>sent</code> 提供纯句子列表。内部统一转换为逐句表格，保留原始 <code>article_id</code>，并为每条 JSON 文章记录生成唯一 <code>article_key</code>，同时保留 <code>sentence_index</code> 和 <code>domain</code>。测试集不会生成或推断真实标签。</p></div>
+</body></html>

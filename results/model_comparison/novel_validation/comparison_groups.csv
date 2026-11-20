@@ -1,0 +1,5 @@
+﻿comparison_group,count,ratio
+both_correct,9676,0.828283
+svm_only_correct,722,0.061804
+roberta_only_correct,833,0.071306
+both_wrong,451,0.038606

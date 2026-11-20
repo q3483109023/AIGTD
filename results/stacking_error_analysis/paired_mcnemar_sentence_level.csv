@@ -1,0 +1,4 @@
+﻿comparison,stacker_only_correct,other_only_correct,discordant_total,exact_mcnemar_binomial_p,note
+stacker_vs_roberta,266,184,450,0.00012913990523423952,Sentence-level paired test; does not account for within-source dependence.
+stacker_vs_svm,635,215,850,7.453259932932492e-49,Sentence-level paired test; does not account for within-source dependence.
+stacker_vs_veto,161,131,292,0.08950612118716089,Sentence-level paired test; does not account for within-source dependence.

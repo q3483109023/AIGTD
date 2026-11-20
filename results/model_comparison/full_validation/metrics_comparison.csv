@@ -1,0 +1,3 @@
+﻿split,model,n_samples,accuracy,precision_machine,recall_machine,macro_f1,micro_f1,f1_human,f1_machine,tn_human_correct,fp_human_pred_machine,fn_machine_pred_human,tp_machine_correct
+full_validation,TF-IDF+LinearSVC,13607,0.903138,0.925930,0.926345,0.892738,0.903138,0.859338,0.926138,4026,661,657,8263
+full_validation,RoBERTa,13607,0.911075,0.896442,0.977242,0.896955,0.911075,0.858810,0.935100,3680,1007,203,8717

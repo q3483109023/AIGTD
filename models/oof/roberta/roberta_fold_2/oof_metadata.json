@@ -1,0 +1,12 @@
+{
+  "model_name": "roberta-base",
+  "fold": 2,
+  "epochs": 3,
+  "max_length": 256,
+  "train_rows": 37272,
+  "validation_rows": 10578,
+  "class_weighted_loss": true,
+  "seed": 44,
+  "outer_oof_validation_used_for_early_stopping": false,
+  "purge_strategy": "source_article_id grouped; per-fold exact normalized target-text purge"
+}

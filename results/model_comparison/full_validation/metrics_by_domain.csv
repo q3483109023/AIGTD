@@ -1,0 +1,5 @@
+﻿split,model,n_samples,accuracy,precision_machine,recall_machine,macro_f1,micro_f1,f1_human,f1_machine,tn_human_correct,fp_human_pred_machine,fn_machine_pred_human,tp_machine_correct,domain
+full_validation,TF-IDF+LinearSVC,12860,0.907776,0.927082,0.932796,0.897533,0.907776,0.865135,0.929930,3804,619,567,7870,academic
+full_validation,RoBERTa,12860,0.913608,0.899978,0.976888,0.900059,0.913608,0.863262,0.936857,3507,916,195,8242,academic
+full_validation,TF-IDF+LinearSVC,747,0.823293,0.903448,0.813665,0.813521,0.823293,0.770833,0.856209,222,42,90,393,news
+full_validation,RoBERTa,747,0.867470,0.839223,0.983437,0.841576,0.867470,0.777528,0.905624,173,91,8,475,news

@@ -1,0 +1,32 @@
+AIGTD Novel Validation update - install and verify
+
+1) From the AIGTD project root, back up current scripts:
+   mkdir -p backup_before_novel_update
+   cp scripts/common.py scripts/evaluate.py scripts/train_svm.py backup_before_novel_update/
+
+2) Extract this ZIP INTO the AIGTD project root, preserving the scripts/ folder:
+   unzip -o AIGTD_novel_validation_update.zip -d .
+
+3) Verify these exact markers exist:
+   grep -n "Novel Validation" scripts/train_svm.py
+   grep -n "mark_novel_validation" scripts/common.py
+   grep -n "novel_validation_count" scripts/evaluate.py
+
+4) Run:
+   python scripts/train_svm.py
+
+Expected output must include:
+   完整验证句子数：13,607
+   Novel Validation：<count> (...); 训练中已出现：<count>
+   [svm_tfidf] Full Validation: ... | Novel Validation: ...
+   Novel Validation 最优阈值：...
+
+Expected outputs:
+   results/svm_tfidf_metrics.json
+   results/svm_tfidf_novel_predictions.csv
+   results/svm_tfidf_predictions.csv (must contain is_novel_validation and evaluation_subset)
+   results/svm_tfidf_thresholds.csv
+   results/confusion_matrix_full.png
+   results/confusion_matrix_novel.png
+
+The update also keeps append_metrics robust to an existing zero-byte metrics.csv.

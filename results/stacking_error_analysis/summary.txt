@@ -1,0 +1,36 @@
+AIGTD Stacking error analysis
+========================================================================
+Input: results/oof_fusion/novel_fusion_predictions.csv
+Novel rows: 11682
+Unique article_key: 1017
+Unique source article_id: 619
+Assigned folds: 5 -> [0, 1, 2, 3, 4]
+Human/Machine: 4613/7069
+
+Metrics:
+- stacker: Acc=0.9217, Macro-F1=0.9174, F1_human=0.8985, F1_machine=0.9362, FP=562, FN=353, ROC-AUC=0.9729
+- roberta: Acc=0.9147, Macro-F1=0.9093, F1_human=0.8874, F1_machine=0.9313, FP=686, FN=311, ROC-AUC=0.9463
+- svm: Acc=0.8857, Macro-F1=0.8800, F1_human=0.8537, F1_machine=0.9062, FP=717, FN=618, ROC-AUC=0.9507
+- veto: Acc=0.9191, Macro-F1=0.9144, F1_human=0.8943, F1_machine=0.9345, FP=615, FN=330, ROC-AUC=nan
+
+Stacker vs RoBERTa correctness groups:
+- both_correct: 10501 (89.89%)
+- stacker_only_correct: 266 (2.28%)
+- roberta_only_correct: 184 (1.58%)
+- both_wrong: 731 (6.26%)
+
+Duplicate text audit:
+- Duplicate normalized-text groups: 1261
+- Conflicting-label normalized-text groups: 1
+- Rows in conflicting-label groups: 2
+
+Bootstrap:
+- Repetitions: 2000; seed=42
+- Primary cluster: article_id (source ID); sensitivity: article_key.
+- Shared duplicate text across different source IDs may induce residual dependence; interpret CIs with this limitation.
+
+Interpretation notes:
+- All classifications use the saved prediction columns; no thresholds were retuned.
+- FP means human(0) predicted machine(1); FN means machine(1) predicted human(0).
+- Group and subgroup differences are descriptive; do not infer causal mechanisms from sentence style.
+- Cluster bootstrap resamples whole groups and computes paired metric differences on identical resamples.

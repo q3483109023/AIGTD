@@ -1,0 +1,40 @@
+AIGTD OOF fusion training/evaluation
+========================================================================
+OOF rows: 52,864; Novel rows: 11,682
+Novel source key: article_id; source IDs shared with OOF train: 0
+Novel fold assignment (source groups kept intact):
+               article_count  source_group_count  sentence_count
+assigned_fold                                                   
+0                        197                 123            2337
+1                        203                 123            2337
+2                        204                 125            2336
+3                        209                 124            2336
+4                        204                 124            2336
+Per-fold score normalization: {"svm": {"0": {"mean": 0.4849345264422407, "std": 1.255842265754844}, "1": {"mean": 0.4805481869685131, "std": 1.2749239559291838}, "2": {"mean": 0.487655033886259, "std": 1.2701769667928904}, "3": {"mean": 0.44781674883052625, "std": 1.2515108949788174}, "4": {"mean": 0.48306059817461694, "std": 1.2725077589890803}}, "roberta": {"0": {"mean": 3.553710843128271, "std": 5.929323654832079}, "1": {"mean": 4.293865389063612, "std": 6.5563202955151985}, "2": {"mean": 3.422489266516491, "std": 6.323894514582402}, "3": {"mean": 3.9279999118287723, "std": 7.126913284262172}, "4": {"mean": 3.9797129110325846, "std": 5.898477859281684}}}
+
+OOF-selected SVM z threshold: -0.340000
+OOF-selected RoBERTa z threshold: 0.260000
+OOF-selected Stacker probability threshold: 0.585000
+OOF-selected veto: roberta_z>=0.189881 AND svm_z>=-0.950842
+
+Metrics:
+                            split                             model     n  accuracy  precision_machine  recall_machine  f1_machine  precision_human  recall_human  f1_human  macro_f1  micro_f1      tn     fp     fn      tp  roc_auc  average_precision
+          oof_crossfit_diagnostic                 svm_oof_threshold 52864  0.888204           0.929914        0.899582    0.914497         0.813106      0.865659  0.838560  0.876528  0.888204 15349.0 2382.0 3528.0 31605.0 0.950129           0.974348
+          oof_crossfit_diagnostic             roberta_oof_threshold 52864  0.918357           0.934520        0.943244    0.938862         0.885422      0.869043  0.877156  0.908009  0.918357 15409.0 2322.0 1994.0 33139.0 0.959400           0.972292
+          oof_crossfit_diagnostic              stacker_oof_crossfit 52864  0.925015           0.947766        0.938918    0.943321         0.881167      0.897468  0.889243  0.916282  0.925015 15913.0 1818.0 2146.0 32987.0 0.972078           0.985578
+          oof_crossfit_diagnostic                          veto_oof 52864  0.920948           0.939787        0.941366    0.940576         0.883431      0.880492  0.881959  0.911268  0.920948 15612.0 2119.0 2060.0 33073.0 0.971203           0.984487
+    novel_validation_fold_matched                  svm_fold_matched 11682  0.885722           0.899972        0.912576    0.906230         0.863093      0.844570  0.853731  0.879980  0.885722  3896.0  717.0  618.0  6451.0 0.950582           0.968460
+    novel_validation_fold_matched              roberta_fold_matched 11682  0.914655           0.907845        0.956005    0.931303         0.926616      0.851290  0.887357  0.909330  0.914655  3927.0  686.0  311.0  6758.0 0.958178           0.961767
+    novel_validation_fold_matched              stacker_fold_matched 11682  0.921674           0.922781        0.950064    0.936224         0.919846      0.878170  0.898525  0.917374  0.921674  4051.0  562.0  353.0  6716.0 0.972856           0.982262
+    novel_validation_fold_matched             svm_veto_fold_matched 11682  0.919106           0.916372        0.953317    0.934480         0.923752      0.866681  0.894307  0.914393  0.919106  3998.0  615.0  330.0  6739.0 0.972030           0.981165
+novel_5fold_ensemble_ranking_only     svm_5fold_mean_z_ranking_only 11682       NaN                NaN             NaN         NaN              NaN           NaN       NaN       NaN       NaN     NaN    NaN    NaN     NaN 0.955547           0.971961
+novel_5fold_ensemble_ranking_only roberta_5fold_mean_z_ranking_only 11682       NaN                NaN             NaN         NaN              NaN           NaN       NaN       NaN       NaN     NaN    NaN    NaN     NaN 0.979145           0.985766
+
+Important interpretation:
+- Meta-models are cross-fitted by the original OOF fold; exact normalized text overlap is purged from meta-training.
+- Novel rows are assigned by source ID to one fold and scored by its corresponding base fold models and meta-model.
+- This fold-matched evaluation avoids feeding five-fold averaged features to a stacker trained on single-fold OOF features.
+- OOF metrics are training/model-selection diagnostics; Novel metrics are the held-out evaluation for this stacking stage.
+- Five-fold mean z-score ranking metrics are reported as ranking-only diagnostics; no classification threshold is applied to them.
+- Fold-matched Novel metrics use one deterministically assigned base fold per source ID, matching the one-fold OOF feature structure.
+- Duplicate normalized texts across different OOF validation folds remain in sentence-level evaluation; meta-training purge prevents exact-text overlap with each meta holdout fold.

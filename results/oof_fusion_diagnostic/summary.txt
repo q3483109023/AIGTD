@@ -1,0 +1,19 @@
+AIGTD fold-matched Novel fusion diagnostic
+========================================================================
+Canonical Novel rows: 11,682
+Selected fold-matched rows: 11,682
+Rows per selected fold: {0: 2337, 1: 2337, 2: 2336, 3: 2336, 4: 2336}
+Assigned folds: {0: 2337, 1: 2337, 2: 2336, 3: 2336, 4: 2336}
+
+Integrity issues:
+- None
+
+Per-fold metrics are in fold_matched_diagnostics.csv.
+Assigned subset class/domain/score distributions are in assigned_fold_distributions.csv.
+Cross-fold positive-vs-negative AUC decomposition is in cross_fold_auc_decomposition.csv.
+
+Interpretation guide:
+- If each assigned_subset_by_fold AUC is high but pooled_assigned_novel AUC is low, the main issue is cross-fold score/threshold calibration or fold-to-fold distribution shift.
+- If assigned_subset_by_fold AUC is also near 0.5, inspect Novel fold assignment composition and base-model generalization on those selected article groups.
+- Compare model_fold_on_all_novel AUC to assigned_subset_by_fold AUC to isolate the effect of selecting only one fold's subset.
+- Do not use any thresholds or results in this diagnostic to retune on Novel labels.

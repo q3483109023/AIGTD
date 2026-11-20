@@ -1,0 +1,6 @@
+﻿fold,train_rows,validation_rows,novel_rows_scored,epochs,model_dir,last_train_loss
+0,37359,10566,11682,3,models/oof/roberta/roberta_fold_0,0.12506698467659663
+1,37415,10567,11682,3,models/oof/roberta/roberta_fold_1,0.1269751193885148
+2,37272,10578,11682,3,models/oof/roberta/roberta_fold_2,0.12458486156648073
+3,37537,10574,11682,3,models/oof/roberta/roberta_fold_3,0.1273547431932389
+4,37280,10579,11682,3,models/oof/roberta/roberta_fold_4,0.12789005398519973

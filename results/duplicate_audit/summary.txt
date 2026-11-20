@@ -1,0 +1,44 @@
+AIGTD 重复文本与潜在数据泄漏审计
+================================================
+训练 split 句子：52,864
+验证 split 句子：13,607
+无标签测试句子：4,264
+
+一、重复句子
+重复文本组数：7,019
+重复组中的句子总出现次数：22,173
+超过首次出现的重复次数：15,154
+跨文章记录重复的文本组：7,018
+同一文章内部重复的文本组：2
+跨数据 split 重复的文本组：811
+训练/验证之间重复的文本组：731
+开发集/测试集之间重复的文本组：83
+同时出现 human 和 machine 标签的重复文本组：56
+
+二、文章内容重复
+检查的文章记录数：5,500
+跨 split 完全相同（顺序一致）的文章组：0
+跨 split 句子集合相同（忽略顺序）的文章组：0
+
+三、训练/测试相同 article_id 检查
+开发集不同 article_id：3,092
+测试集不同 article_id：500
+共享 article_id：24
+共享 ID 中存在完全相同句子的 ID 数：0
+共享 ID 中存在完全相同整篇文章的 ID 数：0
+
+四、报告文件
+- article_content_signatures.csv
+- conflicting_duplicate_labels.csv
+- cross_split_article_sentence_set_duplicates.csv
+- cross_split_duplicate_sentences.csv
+- cross_split_exact_article_duplicates.csv
+- development_test_sentence_overlap.csv
+- duplicate_sentence_groups.csv
+- duplicate_sentence_occurrences.csv
+- summary.json
+- train_test_shared_article_ids.csv
+- train_validation_sentence_overlap.csv
+
+说明：本脚本只审计和报告，不删除数据、不重划分数据。请先检查 train_validation_sentence_overlap.csv、
+conflicting_duplicate_labels.csv、cross_split_exact_article_duplicates.csv 和 train_test_shared_article_ids.csv。

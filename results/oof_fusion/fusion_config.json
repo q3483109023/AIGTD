@@ -1,0 +1,16 @@
+{
+  "n_splits": 5,
+  "seed": 42,
+  "logistic_C": 1.0,
+  "normalization": "per-fold z-score fitted on that fold's OOF validation score distribution; reused for matching Novel fold",
+  "novel_assignment": "deterministic largest-first source-group balancing; key column=article_id; no labels used",
+  "meta_cv": "hold out original OOF fold; train on other folds; purge exact normalized text overlap with held-out meta fold",
+  "svm_threshold_z": -0.33999999999999986,
+  "roberta_threshold_z": 0.2599999999999998,
+  "stacker_threshold": 0.5850000000000001,
+  "veto_roberta_z_threshold": 0.1898811902847313,
+  "veto_svm_z_threshold": -0.9508420602132533,
+  "veto_oof_macro_f1": 0.9112675268109649,
+  "novel_source_id_overlap_with_oof_train": 0,
+  "warning": "Thresholds and rules are selected on OOF training labels only. Novel metrics are evaluation results for development validation, not final blind-test guarantees."
+}

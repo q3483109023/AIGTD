@@ -1,0 +1,22 @@
+AIGTD duplicate article_id fix
+
+Replace these four files in your project with the files in this archive:
+  scripts/common.py
+  scripts/inspect_dataset.py
+  scripts/preprocess.py
+  scripts/predict.py
+
+Main changes:
+1. Duplicate source `id` values no longer stop JSON parsing.
+2. The original source `article_id` is retained unchanged.
+3. A unique `article_key` is added for each JSON article-record occurrence.
+4. Context construction groups by `article_key`, preventing sentences from separate records with the same source ID from being joined.
+5. Train/validation splitting still groups by source `article_id`, so records sharing an ID stay in the same split.
+6. Test JSON predictions are grouped by `article_key`, so repeated source IDs are not merged into a single article object.
+
+After replacing the files, rerun:
+  python scripts/inspect_dataset.py
+  python scripts/preprocess.py
+
+Important:
+The patch does not delete or merge duplicate records. The audit report will show repeated source IDs. If source IDs are not intended to identify the same underlying article, the grouping policy may need to be adjusted after checking the duplicate-ID examples and article contents.

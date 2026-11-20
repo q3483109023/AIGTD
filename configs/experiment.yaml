@@ -1,0 +1,61 @@
+# AIGTD: sentence-level human / GPT-3.5-turbo detection
+# Paths are relative to the project root unless they are absolute paths.
+paths:
+  train_json: data/raw/AIGTD_train_sampled_5000.json
+  test_json: data/raw/AIGTD_test_without_labels.json
+  processed_dir: data/processed
+  splits_dir: data/splits
+  results_dir: results
+  checkpoints_dir: models/checkpoints
+  best_model_dir: models/best_model
+
+project:
+  random_seed: 42
+  label_to_id:
+    human: 0
+    machine: 1
+
+split:
+  validation_size: 0.20
+  random_seed: 42
+
+svm:
+  word_ngram_range: [1, 2]
+  char_ngram_range: [2, 5]
+  min_df: 2
+  max_features: 250000
+  C: 2.0
+  max_iter: 3000
+
+transformer:
+  # English examples are shown in the project data. Change this if the actual data is multilingual.
+  model_name: roberta-base
+  max_length: 256
+  train_batch_size: 16
+  eval_batch_size: 32
+  epochs: 5
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+  patience: 2
+  class_weighted_loss: true
+  num_workers: 0
+  context_window: 1
+  device: auto
+
+fusion:
+  embedding_model_name: roberta-base
+  max_length: 256
+  batch_size: 32
+  classifier: logreg  # logreg | svm | lightgbm
+  include_domain_feature: false  # default off to reduce domain-shortcut risk; enable only as an ablation
+  C: 1.0
+  max_iter: 3000
+
+threshold:
+  min: 0.30
+  max: 0.80
+  step: 0.01
+  default: 0.50
+
+prediction:
+  model_type: bert  # svm | bert | context | fusion

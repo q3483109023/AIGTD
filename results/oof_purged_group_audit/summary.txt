@@ -1,0 +1,49 @@
+AIGTD source-ID grouped OOF with per-fold exact-text purge audit
+========================================================================
+Input: data/splits/train.csv
+Sentence rows: 52,864
+Article records: 3,983
+Unique source-ID groups: 2,473
+Folds: 5; seed: 42
+
+Grouping strategy:
+- Keep all records sharing source_article_id in one fold.
+- For each fold, purge from its training rows every normalized sentence
+  that occurs in that fold's validation rows.
+- Do NOT transitively connect all articles through shared sentence links.
+
+Repeated normalized text groups (all data): 5,399
+Rows in repeated normalized text groups: 17,008
+Conflicting-label normalized text groups: 45
+Normalized text groups appearing in validation portions of >1 fold: 1,020
+
+Per-fold balance and purge:
+Fold 0: val=10,566 rows / 797 articles; candidate_train=42,298; purged=4,939 (11.68%); final_train=37,359; final_train human/machine=14,079/23,280; remaining_text_overlap=0
+Fold 1: val=10,567 rows / 797 articles; candidate_train=42,297; purged=4,882 (11.54%); final_train=37,415; final_train human/machine=14,087/23,328; remaining_text_overlap=0
+Fold 2: val=10,578 rows / 796 articles; candidate_train=42,286; purged=5,014 (11.86%); final_train=37,272; final_train human/machine=14,089/23,183; remaining_text_overlap=0
+Fold 3: val=10,574 rows / 796 articles; candidate_train=42,290; purged=4,753 (11.24%); final_train=37,537; final_train human/machine=14,098/23,439; remaining_text_overlap=0
+Fold 4: val=10,579 rows / 797 articles; candidate_train=42,285; purged=5,005 (11.84%); final_train=37,280; final_train human/machine=14,093/23,187; remaining_text_overlap=0
+
+Validation sentence-share max-min gap: 0.02%
+Final training sentence-count min/max: 37,272/37,537
+
+Automatic checks:
+- Every article_key assigned to exactly one fold: PASS
+- Every source_article_id assigned to exactly one fold: PASS
+- Per-fold exact normalized sentence overlap after purge: 0 (PASS)
+- Per-fold source ID overlap after split: 0 (PASS)
+
+Important interpretation:
+- This is a fold/purge feasibility audit, not model OOF predictions.
+- It avoids giant transitive components created by common repeated sentences.
+- Training rows are purged separately for each fold; the same sentence may
+  appear in validation portions of multiple folds, but is removed from the
+  corresponding fold's training rows each time.
+- Suitable first for sentence-only SVM/RoBERTa. For context-window models,
+  a matching sentence must also be purged if it appears inside training
+  context windows; use article/window-level purge and audit separately.
+- Conflicting-label duplicates remain inherently ambiguous for sentence-only
+  models; report their counts and consider inverse-frequency weighting in
+  meta-model fitting as a separate ablation, not an automatic deletion.
+- Do not use this manifest for training until fold balance and purge rates
+  have been reviewed.

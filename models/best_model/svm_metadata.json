@@ -1,0 +1,13 @@
+{
+  "threshold": 0.5200000000000002,
+  "threshold_selection_metric": "novel_macro_f1",
+  "novel_validation_count": 11682,
+  "full_validation_count": 13607,
+  "score_transform": "sigmoid(decision_function); relative score, not calibrated probability",
+  "model_type": "svm",
+  "label_to_id": {
+    "human": 0,
+    "machine": 1
+  },
+  "novel_text_normalization": "Unicode NFKC + casefold + whitespace normalization; punctuation retained"
+}

@@ -1,0 +1,90 @@
+AIGTD OOF prediction audit
+========================================================================
+Expected training rows: 52,864
+SVM OOF rows: 52,864; unique oof_row_id: 52,864
+RoBERTa OOF rows: 52,864; unique oof_row_id: 52,864
+Expected Novel rows per fold: 11,682; folds: 5
+SVM Novel-fold rows: 58,410
+RoBERTa Novel-fold rows: 58,410
+OOF duplicate normalized-text groups: 5,399
+OOF normalized-text groups with conflicting labels: 45
+
+Ranking metrics (threshold-independent):
+     split   model fold     n  roc_auc  average_precision  score_mean  score_std
+oof_pooled     svm  all 52864 0.950087           0.974324    0.476803   1.265114
+  oof_fold     svm    0 10566 0.951520           0.975321    0.484935   1.255842
+  oof_fold     svm    1 10567 0.951156           0.975162    0.480548   1.274924
+  oof_fold     svm    2 10578 0.946728           0.972534    0.487655   1.270177
+  oof_fold     svm    3 10574 0.949701           0.973840    0.447817   1.251511
+  oof_fold     svm    4 10579 0.951449           0.974880    0.483061   1.272508
+oof_pooled roberta  all 52864 0.949614           0.962274    3.835520   6.390740
+  oof_fold roberta    0 10566 0.969856           0.984224    3.553711   5.929324
+  oof_fold roberta    1 10567 0.928909           0.924307    4.293865   6.556320
+  oof_fold roberta    2 10578 0.976194           0.987720    3.422489   6.323895
+  oof_fold roberta    3 10574 0.969875           0.984149    3.928000   7.126913
+  oof_fold roberta    4 10579 0.958209           0.965081    3.979713   5.898478
+
+Novel fold ranking metrics (threshold-independent):
+                       model fold     n  roc_auc  average_precision  score_mean  score_std
+                         svm    0 11682 0.951383           0.969236    0.434218   1.306980
+                         svm    1 11682 0.951189           0.969030    0.431667   1.318574
+                         svm    2 11682 0.949944           0.968079    0.435508   1.315319
+                         svm    3 11682 0.950457           0.968260    0.435967   1.303035
+                         svm    4 11682 0.949857           0.967883    0.434513   1.307996
+    svm_five_fold_mean_score mean 11682 0.955545           0.971959    0.434375   1.293116
+                     roberta    0 11682 0.974886           0.982957    3.061635   6.181066
+                     roberta    1 11682 0.926286           0.893671    3.755812   6.796631
+                     roberta    2 11682 0.972286           0.981796    2.903543   6.559333
+                     roberta    3 11682 0.973902           0.981938    3.499427   7.391106
+                     roberta    4 11682 0.959970           0.958339    3.482830   6.103359
+roberta_five_fold_mean_score mean 11682 0.979113           0.985729    3.340650   6.401350
+
+Checks:
+[PASS] SVM OOF row coverage exactly once: rows=52864, unique=52864, expected=52864
+[PASS] SVM OOF duplicate oof_row_id: duplicates=0
+[PASS] RoBERTa OOF row coverage exactly once: rows=52864, unique=52864, expected=52864
+[PASS] RoBERTa OOF duplicate oof_row_id: duplicates=0
+[PASS] SVM/RoBERTa OOF aligned: keyed by oof_row_id
+[PASS] Fold 0 source-ID isolation: overlap=0
+[PASS] Fold 0 normalized-text purge: overlap_groups=0
+[PASS] Fold 1 source-ID isolation: overlap=0
+[PASS] Fold 1 normalized-text purge: overlap_groups=0
+[PASS] Fold 2 source-ID isolation: overlap=0
+[PASS] Fold 2 normalized-text purge: overlap_groups=0
+[PASS] Fold 3 source-ID isolation: overlap=0
+[PASS] Fold 3 normalized-text purge: overlap_groups=0
+[PASS] Fold 4 source-ID isolation: overlap=0
+[PASS] Fold 4 normalized-text purge: overlap_groups=0
+[PASS] Fold validation rows cover training rows: rows=52864, unique=52864
+[PASS] SVM OOF finite score/range check: svm_decision_score:finite=True; svm_p_machine:finite=True; svm_p_machine in [0,1]=True
+[PASS] RoBERTa OOF finite score/range check: roberta_logit_margin:finite=True; roberta_p_machine:finite=True; roberta_p_machine in [0,1]=True
+[PASS] SVM Novel finite score/range check: svm_decision_score:finite=True; svm_p_machine:finite=True; svm_p_machine in [0,1]=True
+[PASS] RoBERTa Novel finite score/range check: roberta_logit_margin:finite=True; roberta_p_machine:finite=True; roberta_p_machine in [0,1]=True
+[PASS] SVM Novel has every Novel row once per fold: fold0=11682 rows/11682 IDs; fold1=11682 rows/11682 IDs; fold2=11682 rows/11682 IDs; fold3=11682 rows/11682 IDs; fold4=11682 rows/11682 IDs
+[PASS] RoBERTa Novel has every Novel row once per fold: fold0=11682 rows/11682 IDs; fold1=11682 rows/11682 IDs; fold2=11682 rows/11682 IDs; fold3=11682 rows/11682 IDs; fold4=11682 rows/11682 IDs
+[PASS] SVM Novel fold 0 matches canonical Novel Validation: 11682 rows
+[PASS] SVM Novel fold 1 matches canonical Novel Validation: 11682 rows
+[PASS] SVM Novel fold 2 matches canonical Novel Validation: 11682 rows
+[PASS] SVM Novel fold 3 matches canonical Novel Validation: 11682 rows
+[PASS] SVM Novel fold 4 matches canonical Novel Validation: 11682 rows
+[PASS] SVM Novel y_true equals label_id: mismatches=0
+[PASS] RoBERTa Novel fold 0 matches canonical Novel Validation: 11682 rows
+[PASS] RoBERTa Novel fold 1 matches canonical Novel Validation: 11682 rows
+[PASS] RoBERTa Novel fold 2 matches canonical Novel Validation: 11682 rows
+[PASS] RoBERTa Novel fold 3 matches canonical Novel Validation: 11682 rows
+[PASS] RoBERTa Novel fold 4 matches canonical Novel Validation: 11682 rows
+[PASS] RoBERTa Novel y_true equals label_id: mismatches=0
+[PASS] SVM OOF y_true equals label_id: mismatches=0
+[PASS] SVM OOF fold values valid: invalid=0
+[PASS] RoBERTa OOF y_true equals label_id: mismatches=0
+[PASS] RoBERTa OOF fold values valid: invalid=0
+
+Issues:
+- None
+
+Interpretation notes:
+- AUC/AP are ranking diagnostics; no threshold is selected here.
+- SVM sigmoid(decision_function) is a monotonic score transform, not calibrated probability.
+- Novel five-fold mean-score metrics are diagnostic only; do not choose a final threshold from this report.
+- Duplicate normalized texts across different OOF validation folds are allowed by the per-fold purge design; inspect duplicate/conflict reports before meta-model fitting.
+- This script does not fit a stacker or tune a threshold.

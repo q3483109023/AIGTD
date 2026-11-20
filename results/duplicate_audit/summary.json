@@ -1,0 +1,40 @@
+{
+  "inputs": {
+    "train_split": "/home/zhuangyr/dl-workspace/projects/AIGTD_project_starter/AIGTD/data/splits/train.csv",
+    "validation_split": "/home/zhuangyr/dl-workspace/projects/AIGTD_project_starter/AIGTD/data/splits/validation.csv",
+    "unlabeled_test": "/home/zhuangyr/dl-workspace/projects/AIGTD_project_starter/AIGTD/data/processed/test_sentences.csv"
+  },
+  "sentence_duplicate_audit": {
+    "nonempty_sentence_rows_all_splits": 70735,
+    "distinct_normalized_sentences_all_splits": 55581,
+    "duplicate_sentence_groups_all_splits": 7019,
+    "rows_in_duplicate_groups_all_splits": 22173,
+    "extra_duplicate_occurrences_all_splits": 15154,
+    "within_article_duplicate_groups": 2,
+    "cross_article_record_duplicate_groups": 7018,
+    "cross_split_duplicate_groups": 811,
+    "train_validation_duplicate_groups": 731,
+    "development_test_duplicate_groups": 83,
+    "duplicate_groups_with_human_machine_label_conflict": 56,
+    "labeled_sentence_rows_train_validation": 66471
+  },
+  "article_content_audit": {
+    "article_records_audited": 5500,
+    "cross_split_exact_article_duplicates": 0,
+    "cross_split_sentence_set_duplicates": 0
+  },
+  "train_test_article_id_audit": {
+    "development_unique_article_ids": 3092,
+    "test_unique_article_ids": 500,
+    "train_test_shared_article_ids": 24,
+    "shared_ids_with_any_exact_sentence_overlap": 0,
+    "shared_ids_with_exact_ordered_article_match": 0
+  },
+  "normalization": "Unicode NFKC + casefold + whitespace normalization; punctuation retained",
+  "interpretation": [
+    "Exact sentence overlap between train and validation may inflate validation metrics.",
+    "Exact sentence overlap between development data and test is reported for awareness; test labels are unavailable.",
+    "A repeated article_id is not treated as proof of leakage; article text signatures and sentence overlap are compared.",
+    "This script only reports duplicates and does not delete or move any sample."
+  ]
+}

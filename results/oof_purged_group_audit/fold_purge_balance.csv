@@ -1,0 +1,6 @@
+﻿fold,validation_rows,validation_articles,validation_source_ids,validation_human,validation_machine,candidate_train_rows,candidate_train_articles,candidate_train_source_ids,candidate_train_human,candidate_train_machine,purged_from_train_rows,purged_from_train_articles,purged_from_train_source_ids,purged_from_train_human,purged_from_train_machine,final_train_rows,final_train_articles,final_train_source_ids,final_train_human,final_train_machine,purged_train_row_pct,purged_unique_texts,validation_unique_texts,post_purge_text_overlap_groups,post_purge_source_id_overlap
+0,10566,797,494,3543,7023,42298,3186,1979,14188,28110,4939,1492,1025,109,4830,37359,3186,1979,14079,23280,0.11676675020095513,593,8626,0,0
+1,10567,797,494,3547,7020,42297,3186,1979,14184,28113,4882,1513,1038,97,4785,37415,3186,1979,14087,23328,0.11542189753410408,597,8588,0,0
+2,10578,796,495,3548,7030,42286,3187,1978,14183,28103,5014,1495,1016,94,4920,37272,3187,1978,14089,23183,0.1185735231518706,588,8760,0,0
+3,10574,796,494,3546,7028,42290,3187,1979,14185,28105,4753,1455,996,87,4666,37537,3187,1979,14098,23439,0.11239063608418065,574,8472,0,0
+4,10579,797,496,3547,7032,42285,3186,1977,14184,28101,5005,1530,1039,91,4914,37280,3186,1977,14093,23187,0.11836348586969374,595,8736,0,0
