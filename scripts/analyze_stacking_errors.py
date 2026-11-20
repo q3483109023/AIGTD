@@ -359,7 +359,7 @@ def main() -> int:
         g.to_csv(outdir / f"{group}.csv", index=False, encoding="utf-8-sig")
         # Up to 100 representative rows, deterministic order. Full group is retained above.
         if len(g):
-            sort_cols = ["stacker_p_machine", "roberta_p_machine"]
+            sort_cols = ["stacker_p_machine", "roberta_z"]
             g.sort_values(sort_cols, ascending=False).head(100).to_csv(
                 outdir / f"{group}_examples_top100.csv", index=False, encoding="utf-8-sig"
             )
