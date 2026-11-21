@@ -1,0 +1,282 @@
+{
+  "audit": "independent_context_oof_fold_and_novel_mapping_audit",
+  "context_window": 1,
+  "n_splits": 5,
+  "canonical_train_rows": 52864,
+  "canonical_validation_rows": 13607,
+  "recomputed_novel_rows": 11682,
+  "exported_novel_rows": 11682,
+  "expected_novel_rows_from_handover": 11682,
+  "novel_count_matches_handover": true,
+  "novel_export_mapping_check": {
+    "expected_rows": 11682,
+    "actual_rows": 11682,
+    "missing_rows": 0,
+    "extra_rows": 0,
+    "field_mismatches": {
+      "article_key": 0,
+      "sentence_index": 0,
+      "text": 0,
+      "label_id": 0,
+      "context_text": 11623,
+      "article_id": 0
+    },
+    "pass": false,
+    "novel_row_id_is_contiguous_in_export_order": true
+  },
+  "recomputed_novel_target_components": 10219,
+  "oof_validation_rows_cover_each_train_row_once": true,
+  "fold_reports": [
+    {
+      "fold": 0,
+      "candidate_train_rows": 42298,
+      "expected_purged_rows": 9782,
+      "expected_train_rows": 32516,
+      "actual_train_rows": 32516,
+      "validation_rows": 10566,
+      "train_export_exact_match": {
+        "expected_rows": 32516,
+        "actual_rows": 32516,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 32276
+        },
+        "pass": false
+      },
+      "validation_export_exact_match": {
+        "expected_rows": 10566,
+        "actual_rows": 10566,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 10460
+        },
+        "pass": false
+      },
+      "train_validation_component_overlap": 0,
+      "train_novel_window_component_overlap": 0,
+      "source_id_overlap": 0,
+      "article_key_overlap": 0,
+      "train_human_rows": 13121,
+      "train_machine_rows": 19395,
+      "validation_fold_values_match": true,
+      "pass": false
+    },
+    {
+      "fold": 1,
+      "candidate_train_rows": 42297,
+      "expected_purged_rows": 9947,
+      "expected_train_rows": 32350,
+      "actual_train_rows": 32350,
+      "validation_rows": 10567,
+      "train_export_exact_match": {
+        "expected_rows": 32350,
+        "actual_rows": 32350,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 32053
+        },
+        "pass": false
+      },
+      "validation_export_exact_match": {
+        "expected_rows": 10567,
+        "actual_rows": 10567,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 10512
+        },
+        "pass": false
+      },
+      "train_validation_component_overlap": 0,
+      "train_novel_window_component_overlap": 0,
+      "source_id_overlap": 0,
+      "article_key_overlap": 0,
+      "train_human_rows": 13092,
+      "train_machine_rows": 19258,
+      "validation_fold_values_match": true,
+      "pass": false
+    },
+    {
+      "fold": 2,
+      "candidate_train_rows": 42286,
+      "expected_purged_rows": 9902,
+      "expected_train_rows": 32384,
+      "actual_train_rows": 32384,
+      "validation_rows": 10578,
+      "train_export_exact_match": {
+        "expected_rows": 32384,
+        "actual_rows": 32384,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 32136
+        },
+        "pass": false
+      },
+      "validation_export_exact_match": {
+        "expected_rows": 10578,
+        "actual_rows": 10578,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 10473
+        },
+        "pass": false
+      },
+      "train_validation_component_overlap": 0,
+      "train_novel_window_component_overlap": 0,
+      "source_id_overlap": 0,
+      "article_key_overlap": 0,
+      "train_human_rows": 13080,
+      "train_machine_rows": 19304,
+      "validation_fold_values_match": true,
+      "pass": false
+    },
+    {
+      "fold": 3,
+      "candidate_train_rows": 42290,
+      "expected_purged_rows": 9506,
+      "expected_train_rows": 32784,
+      "actual_train_rows": 32784,
+      "validation_rows": 10574,
+      "train_export_exact_match": {
+        "expected_rows": 32784,
+        "actual_rows": 32784,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 32490
+        },
+        "pass": false
+      },
+      "validation_export_exact_match": {
+        "expected_rows": 10574,
+        "actual_rows": 10574,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 10522
+        },
+        "pass": false
+      },
+      "train_validation_component_overlap": 0,
+      "train_novel_window_component_overlap": 0,
+      "source_id_overlap": 0,
+      "article_key_overlap": 0,
+      "train_human_rows": 13153,
+      "train_machine_rows": 19631,
+      "validation_fold_values_match": true,
+      "pass": false
+    },
+    {
+      "fold": 4,
+      "candidate_train_rows": 42285,
+      "expected_purged_rows": 9940,
+      "expected_train_rows": 32345,
+      "actual_train_rows": 32345,
+      "validation_rows": 10579,
+      "train_export_exact_match": {
+        "expected_rows": 32345,
+        "actual_rows": 32345,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 32051
+        },
+        "pass": false
+      },
+      "validation_export_exact_match": {
+        "expected_rows": 10579,
+        "actual_rows": 10579,
+        "missing_rows": 0,
+        "extra_rows": 0,
+        "field_mismatches": {
+          "fold": 0,
+          "article_key": 0,
+          "source_article_id": 0,
+          "sentence_index": 0,
+          "text": 0,
+          "label_id": 0,
+          "context_text": 10518
+        },
+        "pass": false
+      },
+      "train_validation_component_overlap": 0,
+      "train_novel_window_component_overlap": 0,
+      "source_id_overlap": 0,
+      "article_key_overlap": 0,
+      "train_human_rows": 13072,
+      "train_machine_rows": 19273,
+      "validation_fold_values_match": true,
+      "pass": false
+    }
+  ],
+  "overall_pass": false,
+  "privacy": {
+    "sentence_text_written_to_report": false,
+    "article_identifiers_written_to_report": false,
+    "row_level_audit_exports_created": false,
+    "source_data_modified": false
+  },
+  "limitations": [
+    "The audit verifies exported fold CSVs against the current canonical split CSVs and row manifest.",
+    "It does not establish semantic label correctness or independent-test generalization."
+  ]
+}
