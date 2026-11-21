@@ -177,12 +177,18 @@ def main() -> None:
     if not novel_file.exists():
         raise FileNotFoundError(novel_file)
     actual_novel = pd.read_csv(novel_file, encoding="utf-8-sig", low_memory=False)
+    require_columns(
+        actual_novel,
+        {"novel_row_id", "article_key", "sentence_index", "text", "label_id", "context_text"},
+        "exported Novel Validation",
+    )
 
     novel_fields = [
-        field for field in (
-            "article_key", "sentence_index", "text", "label_id", "article_id", "context_text"
-        ) if field in expected_novel.columns and field in actual_novel.columns
+        "article_key", "sentence_index", "text", "label_id", "context_text"
     ]
+    if "article_id" in expected_novel.columns:
+        require_columns(actual_novel, {"article_id"}, "exported Novel Validation")
+        novel_fields.append("article_id")
     novel_check = compare_exports(
         expected_novel, actual_novel, "novel_row_id", novel_fields, "Novel Validation"
     )
@@ -206,6 +212,12 @@ def main() -> None:
             raise FileNotFoundError(f"Fold {fold} is missing train.csv or validation.csv.")
         actual_train = pd.read_csv(train_file, encoding="utf-8-sig", low_memory=False)
         actual_val = pd.read_csv(val_file, encoding="utf-8-sig", low_memory=False)
+        exported_required = {
+            "oof_row_id", "fold", "article_key", "source_article_id",
+            "sentence_index", "text", "label_id", "context_text",
+        }
+        require_columns(actual_train, exported_required, f"Fold {fold} exported train")
+        require_columns(actual_val, exported_required, f"Fold {fold} exported validation")
 
         expected_val = train_ctx.loc[train_ctx["fold"].eq(fold)].copy()
         candidates = train_ctx.loc[~train_ctx["fold"].eq(fold)].copy()
@@ -216,19 +228,15 @@ def main() -> None:
         expected_train = candidates.loc[keep].copy()
 
         fields = [
-            c for c in (
-                "fold", "article_key", "source_article_id", "sentence_index",
-                "text", "label_id", "context_text"
-            ) if c in expected_train.columns and c in actual_train.columns
+            "fold", "article_key", "source_article_id", "sentence_index",
+            "text", "label_id", "context_text",
         ]
         train_check = compare_exports(
             expected_train, actual_train, "oof_row_id", fields, f"Fold {fold} train"
         )
         val_fields = [
-            c for c in (
-                "fold", "article_key", "source_article_id", "sentence_index",
-                "text", "label_id", "context_text"
-            ) if c in expected_val.columns and c in actual_val.columns
+            "fold", "article_key", "source_article_id", "sentence_index",
+            "text", "label_id", "context_text",
         ]
         val_check = compare_exports(
             expected_val, actual_val, "oof_row_id", val_fields, f"Fold {fold} validation"
