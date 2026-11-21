@@ -123,10 +123,17 @@ def outcome_summary(df: pd.DataFrame) -> pd.DataFrame:
             "median_target_chars": float(g.target_chars.median()),
             "mean_previous_chars": float(g.previous_chars.mean()),
             "mean_next_chars": float(g.next_chars.mean()),
+            "mean_brier_delta": float(g.brier_delta.mean()),
+            "mean_logloss_delta": float(g.logloss_delta.mean()),
+            "fraction_brier_worsened": float((g.brier_delta > 0).mean()),
             "mean_sentence_confidence": float(g.sentence_confidence.mean()),
             "mean_context_confidence": float(g.context_confidence.mean()),
             "mean_confidence_delta": float(g.confidence_delta.mean()),
             "mean_probability_delta": float(g.probability_delta.mean()),
+            "mean_brier_delta": float(g.brier_delta.mean()),
+            "mean_logloss_delta": float(g.logloss_delta.mean()),
+            "fraction_brier_worsened": float((g.brier_delta > 0).mean()),
+            "fraction_logloss_worsened": float((g.logloss_delta > 0).mean()),
         })
     return pd.DataFrame(rows)
 
