@@ -28,7 +28,7 @@ def present(path: str) -> bool:
 def has_weights(directory: str) -> bool:
     path = ROOT / directory
     return (path.is_dir() and
-            any(path.glob(pattern) for pattern in
+            any(next(path.glob(pattern), None) is not None for pattern in
                 ("*.safetensors", "pytorch_model.bin", "*.bin")))
 
 
