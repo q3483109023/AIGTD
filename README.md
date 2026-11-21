@@ -275,3 +275,30 @@ Do not retrain the five-fold models until the corrected Stacking aggregates and
 the Context token-retention report have been reviewed. If the audit shows
 material target-token loss, design a separate controlled truncation/window
 ablation rather than silently changing the frozen experiment.
+
+
+### Step 3: Build a protocol-aware unified baseline comparison
+
+After the required aggregate CSVs exist, run:
+
+\`\`\`bash
+python scripts/build_baseline_comparison.py \\
+  --results-dir results \\
+  --output-dir results/analysis_review
+\`\`\`
+
+This writes:
+- \`baseline_comparison.csv\`: SVM, RoBERTa, Stacking, Veto, Sentence-only,
+  and Context metrics with explicit \`protocol_id\`, dataset, threshold source,
+  and aggregation method.
+- \`context_fold_diagnostics.csv\`: all five matched Context/Sentence-only
+  OOF folds, retaining Fold 4 rather than hiding it in a pooled mean.
+
+The table deliberately separates OOF cross-fit diagnostics, Fold-matched Novel
+development results, five-fold mean-score ranking-only results, matched
+Context pooled OOF, Context Novel mean-probability diagnostics, and single-
+split Novel-threshold-selected results. Do not sort these rows as one
+leaderboard. In particular, single-split SVM/RoBERTa thresholds were selected
+on Novel Validation and must not be compared as if they were untouched test
+results. Raw pooled Context AUC/AP and fold-standardized ranking AUC/AP are
+labelled as distinct score aggregation protocols.
