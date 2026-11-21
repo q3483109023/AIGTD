@@ -7,16 +7,16 @@ Status: **candidate selected; NOT yet operationally frozen** (2026-11-22).
 | Role | Candidate | Current status |
 |---|---|---|
 | Best measured *development* fusion | Five-fold SVM + RoBERTa Logistic Stacking | Preferred accuracy/Macro-F1 candidate on fold-matched Novel; **no complete unlabeled-test entrypoint yet** |
-| Lowest-cost executable dry-run | Existing single-model SVM bundle in \`models/best_model/svm.joblib\` | Uses the existing generic inference entrypoint; threshold from its own bundle was selected on Novel and is **not** the OOF fusion threshold |
-| Single-model neural alternative | RoBERTa \`models/best_model/bert\` | Metadata/tokenizer tracked; learned weight file excluded from Git, must be checked on server |
+| Lowest-cost executable dry-run | Existing single-model SVM bundle in `models/best_model/svm.joblib` | Uses the existing generic inference entrypoint; threshold from its own bundle was selected on Novel and is **not** the OOF fusion threshold |
+| Single-model neural alternative | RoBERTa `models/best_model/bert` | Metadata/tokenizer tracked; learned weight file excluded from Git, must be checked on server |
 
-**Do not** mislabel the old \`fusion\` option in \`scripts/predict.py\` as the
-five-fold Stacking experiment. It loads a separate \`fusion.joblib\` embedding
-pipeline, not \`results/oof_fusion/fusion_models.joblib\`.
+**Do not** mislabel the old `fusion` option in `scripts/predict.py` as the
+five-fold Stacking experiment. It loads a separate `fusion.joblib` embedding
+pipeline, not `results/oof_fusion/fusion_models.joblib`.
 
 ### Required operational freeze fields for the intended Stacking model
 
-- Source: \`results/oof_fusion/fusion_config.json\`, seed=42, 5 folds,
+- Source: `results/oof_fusion/fusion_config.json`, seed=42, 5 folds,
   Logistic C=1.0, training groups by source article ID and exact-text purge
   in the meta cross-fitting stage.
 - Saved thresholds: Stacking probability **0.585**; individual SVM
@@ -38,26 +38,26 @@ pipeline, not \`results/oof_fusion/fusion_models.joblib\`.
 ## Stage 1 acceptance commands (run on the private server)
 
 All commands assume the repository root:
-\`/home/zhuangyr/dl-workspace/projects/AIGTD_project_starter/AIGTD\`.
-Run on a new branch based on PR #4, not the historical \`main\` branch.
+`/home/zhuangyr/dl-workspace/projects/AIGTD_project_starter/AIGTD`.
+Run on a new branch based on PR #4, not the historical `main` branch.
 
 ### 1. Inspect; no writes to datasets or weights
 
-\`\`\`bash
+```bash
 git status --short --branch
 git log -1 --oneline
 python scripts/check_stage1_artifacts.py
-\`\`\`
+```
 
 The inventory writes only boolean presence flags, a Git SHA/branch and an
-aggregate warning to \`results/stage1_local_audit/inventory.json\`. GitHub
+aggregate warning to `results/stage1_local_audit/inventory.json`. GitHub
 does not track large checkpoints or local raw data; remote absence alone
 cannot prove server absence. If model weights are absent, stop; do not
 automatically retrain.
 
 ### 2. Verify Stacking and protocol table
 
-Follow the two commands in \`docs/baseline_protocol_and_results.md\` to
+Follow the two commands in `docs/baseline_protocol_and_results.md` to
 generate aggregate corrected statistics and run its fail-closed consistency
 verifier. The historical PR #4 output did not include the new corrected
 aggregate directory because it is intentionally ignored.
@@ -65,12 +65,12 @@ aggregate directory because it is intentionally ignored.
 ### 3. Safe single-SVM inference dry-run
 
 The current inference script parses the requested raw JSON directly and does
-not reuse or overwrite \`data/processed/test_sentences.csv\`. For a dry-run,
+not reuse or overwrite `data/processed/test_sentences.csv`. For a dry-run,
 create a **local-only** JSON subset of the first 2 complete article records,
-preserving the original \`id\`, \`sent\` and optional \`domain\` fields.
+preserving the original `id`, `sent` and optional `domain` fields.
 Do not commit the subset.
 
-\`\`\`bash
+```bash
 python - <<'PY'
 import json
 from pathlib import Path
@@ -89,13 +89,13 @@ python scripts/predict.py \
   --model-type svm \
   --test data/stage1_local_only/test_2_articles.json \
   --output-dir results/stage1_local_audit/dry_run
-\`\`\`
+```
 
 For the two-article subset, the validator's default expected counts (500 and
 4,264) are **not appropriate**; pass the actual sentence count explicitly.
 For example:
 
-\`\`\`bash
+```bash
 python scripts/validate_test_predictions.py \
   --raw-test data/stage1_local_only/test_2_articles.json \
   --pred-json results/stage1_local_audit/dry_run/test_predictions.json \
@@ -108,14 +108,14 @@ x = json.loads(Path('data/stage1_local_only/test_2_articles.json').read_text(enc
 print(sum(len(r['sent']) for r in x))
 PY
 )"
-\`\`\`
+```
 
 No raw text or IDs appear in verification output. This only proves the
 *single SVM* dry-run, **not** that the five-fold Stacking candidate can predict.
 
 ### 4. Final full test acceptance (only after selecting/fixing actual final model)
 
-\`\`\`bash
+```bash
 python scripts/predict.py --model-type svm \
   --test data/raw/AIGTD_test_without_labels.json \
   --output-dir results/stage1_local_audit/full_svm
@@ -125,10 +125,10 @@ python scripts/validate_test_predictions.py \
   --pred-json results/stage1_local_audit/full_svm/test_predictions.json \
   --pred-csv results/stage1_local_audit/full_svm/test_predictions.csv \
   --summary-out results/stage1_local_audit/full_svm_validation.json
-\`\`\`
+```
 
 Expected: **500 article records, 4,264 sentences**, exactly one
-\`human\`/\`machine\` label per sentence, stable article and sentence order,
+`human`/`machine` label per sentence, stable article and sentence order,
 duplicate source IDs allowed, no missing/invalid probability, no extra rows.
 This produces a local *generic* output only. The teacher has not supplied
 a required final submission schema; adapt before formal submission.
