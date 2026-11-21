@@ -1,7 +1,9 @@
 # Frozen OOF Stacking: replay + private-server unlabeled inference
 
-Status: new inference implementation requiring on-server GPU dry-run and
-full test schema validation. **No retraining or threshold tuning.**
+Status: **private-server Novel replay, 16-sentence GPU dry-run and full
+500-article/4,264-sentence CUDA test inference completed; generic output
+validator PASS** (2026-11-22). Teacher's official submission schema not yet
+verified. **No retraining or threshold tuning.**
 
 ## Model identity and data protocol
 
@@ -113,3 +115,40 @@ No test-set threshold selection is permitted.
 - Novel source IDs were audited as disjoint from OOF training in the
   original pipeline. The unlabeled test may have different overlaps;
   any academic independence claim needs a separate audit.
+
+## Actual full-test acceptance record (2026-11-22)
+
+The user executed the commands above on the private server and supplied
+aggregate stdout. All **five** saved fold checkpoints contributed to the
+full test inference:
+
+| Fold | Sentences |
+|---|---:|
+| 0 | 853 |
+| 1 | 853 |
+| 2 | 853 |
+| 3 | 853 |
+| 4 | 852 |
+| **Total** | **4,264** |
+
+The output contains **500 article records**, **1,548 Human** predictions,
+and **2,716 Machine** predictions. The full output validator returned
+`"status": "PASS"` with
+`json_order_and_text_match=true`,
+`csv_consistent=true`,
+`threshold_checked=true`, and
+`source_article_ids_may_repeat=true`.
+The run used CUDA, the saved five-fold meta-models and threshold
+**0.5850000000000001**.
+
+On the same server, development replay passed on 11,682 records
+(maximum probability difference 2.22e-16); the earlier real 16-sentence
+checkpoint dry-run and its output schema validator also passed.
+
+This evidence is restricted to **inference execution and generic schema
+correctness**. It is not an independent accuracy estimate and does not
+establish that the generic JSON is an official submission artifact.
+Outputs and ground-truth-free predictions remain private and ignored by
+Git. The Stage-1 executable model is now frozen; any later E2
+improvement must use its own separate development-only evaluation
+protocol and must not silently overwrite this baseline.
