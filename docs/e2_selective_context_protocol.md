@@ -133,3 +133,57 @@ and different length bands trade off, and why selective heuristics
 were rejected. Do not report an E3 gate gain unless the prescribed
 comparisons pass, and do not let this optional experiment delay
 formal teacher-schema verification and course report completion.
+
+
+## First completed run: aggregate evidence and limits
+
+GitHub CI [E2 paired-OOF run #44926701731](https://github.com/q3483109023/AIGTD/actions/runs/44926701731)
+executed the committed paired OOF artifacts on GitHub, using
+1,000 source-cluster bootstrap replicates and seed 2026.
+Seven synthetic tests passed before the actual experiment.
+
+| Rule | OOF Macro-F1 | Accuracy | Human FP | Human FPR |
+|---|---:|---:|---:|---:|
+| Sentence-matched | 0.875989 | 0.894087 | 4,196 | 0.236648 |
+| Context | 0.899834 | 0.914384 | 3,636 | 0.205065 |
+| 50/50 mean | 0.897943 | 0.912871 | 3,711 | 0.209294 |
+| 75% Context | 0.899977 | 0.914498 | 3,630 | 0.204726 |
+| Context for <=12 words, else Sentence | 0.887548 | 0.903753 | 3,877 | 0.218657 |
+| Context for <=24 words, else Sentence | 0.900072 | 0.914573 | 3,626 | 0.204501 |
+| **Long Human-veto >=20 words** | **0.906659** | **0.919378** | **3,187** | **0.179742** |
+| Long Human-veto >=32 words | 0.901488 | 0.915651 | 3,551 | 0.200271 |
+
+Heldout rule selection on each of the five original folds selected
+the same **long Human-veto >=20** rule; thus its fold-selected pooled
+metrics match the fixed-rule descriptive metrics. It improved
+Macro-F1 over Context by **0.006825** and reduced Human FPR
+by **0.025323 absolute** (2.53 percentage points). In all five
+folds, the Macro-F1 change was nonnegative. The clustered bootstrap
+95% percentile interval for the Macro-F1 difference was
+**[0.005292, 0.008303]** (2,473 source groups; 1,000 replicates).
+This is conditional on the already-trained base model outputs and
+is not a confidence guarantee on unseen data.
+
+**Important trade-off:** the veto reduces Context's Human false
+positives **3,636 -> 3,187** but increases Machine false negatives
+approximately **890 -> 1,075**; Machine Recall decreases from
+**0.974668 to 0.969402**. The simple condition favors lower Human
+false-positive risk at some Machine recall cost. Compare this
+trade-off openly in the final report.
+
+**Evidence status:** promising *development OOF evidence only*.
+The prior diagnostics of Fold 4 and other exploratory work make
+this a hypothesis-generating experiment, not an untouched benchmark
+or a proven generalizable performance gain. Source bootstrap
+accounts for within-source clustering but not full upstream model
+retraining, analysis-driven rule discovery, or distribution shift.
+
+**Decision:** E2 passes the script's exploratory screen, so a
+follow-on E3 is **permitted but optional**, not automatically required.
+Given the simplicity and interpretability of this rule, the
+conservative course-project path is to keep it as a meaningful
+small-method experiment with error trade-off analysis, while
+retaining the **frozen Stacking** deployment baseline. Deploying a
+Context+Sentence selective rule on the unlabeled test would require
+a separate, audited paired inference path using its own strict
+OOF model protocol; do not mix it into Stacking at inference time.
