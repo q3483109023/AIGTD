@@ -71,3 +71,6 @@ results/context_target_token_retention/
 results/stage1_local_audit/
 results/test_predictions.json
 results/*_predictions.json
+
+# Local E2 analysis artifacts: aggregate-only but exploratory, not frozen release data.
+results/e2_selective_context/
