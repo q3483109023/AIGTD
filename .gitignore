@@ -66,3 +66,8 @@ results/oof_purged_group_audit/purge_details.csv
 # Local aggregate review outputs; curate any public-safe artifact explicitly.
 results/stacking_error_analysis_corrected/
 results/context_target_token_retention/
+
+# Stage-1 local inference/validation output (may contain unlabeled raw sentences/IDs)
+results/stage1_local_audit/
+results/test_predictions.json
+results/*_predictions.json
