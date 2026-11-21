@@ -195,12 +195,11 @@ def duplicate_group_report(df: pd.DataFrame, key_col: str, min_rows: int = 2):
     return pd.DataFrame(rows).sort_values(["rows", "key"], ascending=[False, True])
 
 
-def source_audit(train_path: Path, val_path: Path, out: Path):
+def source_audit(train_path: Path, val_path: Path, out: Path, manifest_path: Path):
     train = prepare_source_frame(train_path, "train")
     val = prepare_source_frame(val_path, "validation")
     combined = pd.concat([train, val], ignore_index=True, sort=False)
     # Map OOF fold membership to source rows by row order, as in the preparation protocol.
-    manifest_path = Path("results/oof_purged_group_audit/row_fold_manifest.csv")
     if manifest_path.exists():
         manifest = pd.read_csv(manifest_path, low_memory=False)
         if len(manifest) == len(train) and "fold" in manifest:
@@ -269,12 +268,13 @@ def main():
     p.add_argument("--validation", default="data/splits/validation.csv")
     p.add_argument("--output-dir", default="results/context_oof_threshold_duplicate_audit")
     p.add_argument("--threshold-step", type=float, default=0.01)
+    p.add_argument("--row-manifest", default="results/oof_purged_group_audit/row_fold_manifest.csv")
     args = p.parse_args()
     out = Path(args.output_dir)
     out.mkdir(parents=True, exist_ok=True)
     a, b = load_prediction_pair(Path(args.prediction_dir))
     threshold_analysis(a, b, out, args.threshold_step)
-    source_audit(Path(args.train), Path(args.validation), out)
+    source_audit(Path(args.train), Path(args.validation), out, Path(args.row_manifest))
     print("Threshold sensitivity and duplicate audit complete.")
     print(f"OOF rows: {len(a):,}; folds: {sorted(a['fold'].astype(int).unique().tolist())}")
     print(f"Outputs: {out.resolve()}")
