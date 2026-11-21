@@ -290,7 +290,8 @@ python scripts/build_baseline_comparison.py \\
 This writes:
 - \`baseline_comparison.csv\`: SVM, RoBERTa, Stacking, Veto, Sentence-only,
   and Context metrics with explicit \`protocol_id\`, dataset, threshold source,
-  and aggregation method.
+  and aggregation method. The current aggregate-source snapshot is also
+  tracked as `results/analysis_review/baseline_comparison_reference.csv`.
 - \`context_fold_diagnostics.csv\`: all five matched Context/Sentence-only
   OOF folds, retaining Fold 4 rather than hiding it in a pooled mean.
 
