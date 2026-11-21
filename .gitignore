@@ -62,3 +62,7 @@ results/context_oof_fold4_diagnosis/fold_4_context_helped_examples.csv
 results/oof_purged_group_audit/article_fold_manifest.csv
 results/oof_purged_group_audit/row_fold_manifest.csv
 results/oof_purged_group_audit/purge_details.csv
+
+# Local aggregate review outputs; curate any public-safe artifact explicitly.
+results/stacking_error_analysis_corrected/
+results/context_target_token_retention/
