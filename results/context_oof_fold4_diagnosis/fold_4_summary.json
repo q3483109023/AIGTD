@@ -1,0 +1,32 @@
+{
+  "fold": 4,
+  "rows": 10579,
+  "sentence_n": 10579,
+  "sentence_accuracy": 0.8905378580206068,
+  "sentence_macro_f1": 0.8681777060750104,
+  "sentence_human_f1": 0.8138862102217936,
+  "sentence_machine_f1": 0.9224692019282271,
+  "sentence_human_as_machine": 1015,
+  "sentence_machine_as_human": 143,
+  "context_n": 10579,
+  "context_accuracy": 0.891010492485112,
+  "context_macro_f1": 0.8667498989092578,
+  "context_human_f1": 0.8098928276999176,
+  "context_machine_f1": 0.923606970118598,
+  "context_human_as_machine": 1091,
+  "context_machine_as_human": 62,
+  "macro_f1_delta_context_minus_sentence": -0.001427807165752637,
+  "accuracy_delta_context_minus_sentence": 0.00047263446450518387,
+  "outcome_counts": {
+    "both_correct": 9051,
+    "both_wrong": 783,
+    "context_only_correct": 375,
+    "sentence_only_correct": 370
+  },
+  "outcome_rates": {
+    "both_correct": 0.8555629076472256,
+    "both_wrong": 0.07401455714150676,
+    "context_only_correct": 0.035447584837886376,
+    "sentence_only_correct": 0.034974950373381226
+  }
+}
