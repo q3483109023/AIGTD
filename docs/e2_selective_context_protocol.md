@@ -187,3 +187,18 @@ retaining the **frozen Stacking** deployment baseline. Deploying a
 Context+Sentence selective rule on the unlabeled test would require
 a separate, audited paired inference path using its own strict
 OOF model protocol; do not mix it into Stacking at inference time.
+
+## E2 follow-up: unchanged-rule Novel recheck
+
+The fixed **>=20-word Human-veto** rule was also checked on the **11,682
+previously used Novel Validation targets**, separately under (a) historical
+five-fold mean-probability evaluation and (b) label-free source-fold
+matching. It was **not retuned**. Against its same-protocol Context
+control, the Macro-F1 improvement was respectively **+0.006168** and
+**+0.009788**; Human FP decreased while Machine FN increased.
+
+This supports a useful development-only E2 finding, **not** an untouched
+independent test claim. See `docs/e2_fixed_rule_novel_recheck.md` for
+the exact metrics, source-group bootstrap, verified CI and privacy-safe
+server command. The frozen Stacking baseline and unlabeled test predictions
+remain unchanged.
