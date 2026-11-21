@@ -74,3 +74,6 @@ results/*_predictions.json
 
 # Local E2 analysis artifacts: aggregate-only but exploratory, not frozen release data.
 results/e2_selective_context/
+
+# Novel fixed-veto validation is aggregate-only and remains local exploratory work.
+results/e2_novel_fixed_rule/
