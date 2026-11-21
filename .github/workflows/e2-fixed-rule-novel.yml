@@ -1,0 +1,33 @@
+name: E2 fixed-veto Novel development replication
+on:
+  push:
+    branches: [validation/e2-fixed-veto-novel]
+  pull_request:
+    paths:
+      - "scripts/validate_e2_fixed_rule_novel.py"
+      - "tests/test_e2_novel_fixed_rule.py"
+      - ".github/workflows/e2-fixed-rule-novel.yml"
+permissions:
+  contents: read
+jobs:
+  novel-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install lightweight evaluation dependencies
+        run: python -m pip install "numpy>=1.23" "pandas>=1.5" "scikit-learn>=1.2,<2.0" "scipy>=1.9" joblib pyyaml
+      - name: Synthetic regression tests
+        run: |
+          python -m py_compile scripts/validate_e2_fixed_rule_novel.py
+          python -m unittest discover -s tests -p 'test_e2_novel_fixed_rule.py' -v
+      - name: Fixed 20-word rule on existing Novel data (aggregates only)
+        run: |
+          python -m scripts.validate_e2_fixed_rule_novel \
+            --input-dir results/context_oof \
+            --reference results/context_oof_analysis/novel_metrics.csv \
+            --output-dir results/e2_novel_fixed_rule \
+            --expected-targets 11682 \
+            --bootstrap-reps 1000 --seed 2026
