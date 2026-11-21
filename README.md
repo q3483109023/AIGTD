@@ -128,3 +128,70 @@ python scripts/train_context_oof.py \
 Each run writes OOF predictions (one prediction per original train row), five-fold Novel Validation predictions, fold summaries, and fold checkpoints. Compare `sentence_matched` against `context` first; the old `roberta_oof_predictions.csv` is a secondary historical reference because its target-only purge is less strict.
 
 No threshold tuning, stacking refit, or final test prediction is performed by these scripts. Evaluate paired OOF metrics and article/source-cluster bootstrap first. Novel fold predictions are diagnostic validation results, not an independent test set.
+
+
+## Stage 3: Data-quality and Context OOF integrity audits
+
+These checks reuse existing split/fold CSVs and do **not** retrain models or
+modify source data. Run them before interpreting the Context-window result as
+the preferred model.
+
+### Step 1: Locate cross-split conflicting duplicate texts by article
+
+```bash
+python scripts/analyze_conflict_article_distribution.py \
+  --train data/splits/train.csv \
+  --validation data/splits/validation.csv \
+  --aggregate-output results/analysis_review/article_conflict_distribution_aggregate.json \
+  --detail-dir results/duplicate_data_audit/article_distribution_local_only
+```
+
+The script recomputes normalized duplicate groups and reports the number of
+conflict groups, the number of involved `article_key` / `article_id` values,
+how many conflict groups and rows each article contributes, the distribution
+of groups per article, and top-1/top-5/top-10 article concentration. It also
+rechecks the handover's expected 38 groups rather than assuming that count.
+
+The aggregate JSON contains counts only. The optional per-article detail CSVs
+contain article identifiers and are **local-only**; they are covered by
+`.gitignore` and must not be committed or pasted into public issues/PRs.
+No raw or normalized sentence text is written by this script.
+
+### Step 2: Independently verify Context OOF purge and Novel mapping
+
+```bash
+python scripts/audit_context_oof_independently.py \
+  --train data/splits/train.csv \
+  --validation data/splits/validation.csv \
+  --row-manifest results/oof_purged_group_audit/row_fold_manifest.csv \
+  --folds-dir data/context_oof_folds \
+  --output-dir results/analysis_review \
+  --n-splits 5 \
+  --context-window 1 \
+  --expected-novel-rows 11682
+```
+
+This auditor independently rebuilds previous/target/next windows and the
+expected fold-specific training rows from the canonical split files and row
+manifest. It then checks:
+- exact row membership of each exported fold train/validation CSV;
+- serialized context equality with independently reconstructed windows;
+- zero overlap between train-window components and outer-validation windows;
+- zero overlap between train-window components and Novel Validation windows;
+- source-ID and article-key separation;
+- both classes remain in each fold's training set;
+- every training row appears in exactly one OOF validation fold;
+- Novel Validation row IDs, target text, labels, article positions, and context
+  match the independently recomputed Novel subset.
+
+Only aggregate counts and PASS/FAIL checks are exported. The script supports
+the already-used `context_window=1` protocol and does not change any data.
+
+### Interpretation boundary
+
+A PASS confirms that the materialized fold files match the current canonical
+CSVs and manifest under this protocol. It does not prove label semantics are
+correct, does not make Novel Validation an independent test set, and does not
+explain the Fold 4 ranking-metric degradation. Any mismatch in source CSV
+versions, normalization, manifest ordering, or fold exports must be resolved
+before proceeding to a stricter de-duplication experiment.
