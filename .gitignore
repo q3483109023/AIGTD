@@ -35,3 +35,30 @@ results/context_oof_fold4_diagnosis/fold_4_disagreements.csv
 results/context_oof_fold4_diagnosis/fold_4_context_harmed_examples.csv
 results/context_oof_fold4_diagnosis/fold_4_context_helped_examples.csv
 results/context_oof_independent_audit_local_only/
+
+# Row-level predictions may contain raw sentence/context text and stable IDs.
+results/*_predictions.csv
+results/predictions.csv
+results/context_oof/*_predictions.csv
+results/oof/*_predictions.csv
+results/oof_fusion/*_predictions.csv
+results/oof_fusion/*_assignments.csv
+
+# Duplicate-audit CSVs may contain sentence examples and article identifiers.
+results/duplicate_audit/*.csv
+results/duplicate_audit_reports.zip
+
+# Stacking/Fold diagnostics include row-level errors, text, or article IDs.
+results/stacking_error_analysis/*.csv
+results/model_comparison.zip
+results/context_oof_fold4_diagnosis/fold_4_by_article_id.csv
+results/context_oof_fold4_diagnosis/fold_4_by_article_key.csv
+results/context_oof_fold4_diagnosis/fold_4_by_source_article_id.csv
+results/context_oof_fold4_diagnosis/fold_4_disagreements.csv
+results/context_oof_fold4_diagnosis/fold_4_context_harmed_examples.csv
+results/context_oof_fold4_diagnosis/fold_4_context_helped_examples.csv
+
+# Fold manifests and purge details contain row/article identifiers.
+results/oof_purged_group_audit/article_fold_manifest.csv
+results/oof_purged_group_audit/row_fold_manifest.csv
+results/oof_purged_group_audit/purge_details.csv
