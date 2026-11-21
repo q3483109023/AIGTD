@@ -1,12 +1,12 @@
 # Stage 1 — Freeze candidate and test inference acceptance
 
-Status: **candidate selected; NOT yet operationally frozen** (2026-11-22).
+Status: **frozen as the Stage-1 executable inference baseline** (2026-11-22), based on the user's reported complete private-server run and schema-validation PASS. **Not yet confirmed as the teacher's official submission format.**
 
 ## Model decision
 
 | Role | Candidate | Current status |
 |---|---|---|
-| Best measured *development* fusion | Five-fold SVM + RoBERTa Logistic Stacking | Preferred accuracy/Macro-F1 candidate on fold-matched Novel; **no complete unlabeled-test entrypoint yet** |
+| Best measured *development* fusion | Five-fold SVM + RoBERTa Logistic Stacking | Selected Stage-1 baseline: fold-matched Novel results verified; full 500-record/4,264-sentence unlabeled CUDA inference and generic schema validation PASS |
 | Lowest-cost executable dry-run | Existing single-model SVM bundle in `models/best_model/svm.joblib` | Uses the existing generic inference entrypoint; threshold from its own bundle was selected on Novel and is **not** the OOF fusion threshold |
 | Single-model neural alternative | RoBERTa `models/best_model/bert` | Metadata/tokenizer tracked; learned weight file excluded from Git, must be checked on server |
 
@@ -29,9 +29,11 @@ pipeline, not `results/oof_fusion/fusion_models.joblib`.
   checkpoint weights+tokenizers; fusion meta models; fold-specific
   normalization; source-group/novel-fold mapping logic; correct feature
   construction and inference order.
-- **Not established:** a Stacking test-time assignment/inference and exact
-  replay contract for unseen test articles. A new inference path must be
-  implemented and verified before freezing this candidate.
+- **Established for the current local dataset:** `scripts/predict_oof_stacking.py`
+  implements saved fold-matched inference and exact Novel meta-prediction
+  replay. The user's private-server logs show a real 16-sentence checkpoint
+  dry-run and full 500-article/4,264-sentence inference with all five folds.
+  Teacher-specific final submission schema remains unverified.
 - No independent blind-test score exists; Novel is repeatedly used for
   development.
 
@@ -133,11 +135,48 @@ duplicate source IDs allowed, no missing/invalid probability, no extra rows.
 This produces a local *generic* output only. The teacher has not supplied
 a required final submission schema; adapt before formal submission.
 
-**Current stop/go decision:** Stacking remains the research front-runner;
-the pipeline is not yet accepted for test-time use. Do not call the model
-"finally frozen" until its exact inference path, weights, thresholds,
-standardization, and final output are replay-validated. If insufficient time,
-choose a proven executable baseline, with its distinct evaluation protocol
-clearly disclosed. No test-set metric can be reported without labels.
+**Current stop/go decision (2026-11-22):** Five-fold OOF Stacking is accepted
+as the frozen **Stage-1 engineering baseline**. The saved normalization,
+meta-model probabilities and threshold are replay-validated. The server GPU
+ran all five base folds and wrote the full unlabeled test predictions; the
+JSON/CSV validator passed. The teacher-specific submission contract remains
+a separate unresolved deliverable. Do not use unlabeled test-set predictions
+for selection, threshold tuning or reporting Accuracy/F1.
 
 **CI update (2026-11-22):** Corrected Stacking aggregate recomputation and the new fail-closed verifier passed on the already-committed GitHub snapshot (run [#44924113524](https://github.com/q3483109023/AIGTD/actions/runs/44924113524)). This verifies the published development aggregate, **not** the local server checkpoints or test-time inference. Operational freeze status is unchanged.
+
+
+## Recorded private-server acceptance — 2026-11-22
+
+User-provided local command output (aggregate only; no raw artifacts copied into Git):
+
+| Check | Result |
+|---|---|
+| Local Novel replay | PASS, 11,682 sentences, 5 folds |
+| SVM and RoBERTa z-score replay | Maximum absolute delta = 0.0 for both |
+| Stacking probability replay | Maximum delta = 2.220446049250313e-16 |
+| Frozen Stacking threshold label replay | All labels match |
+| Real CUDA two-article dry-run | 2 article records / 16 sentences; Fold 0=8, Fold 1=8; validator PASS |
+| Real CUDA full unlabeled test | 500 article records / 4,264 sentences; all five folds invoked |
+| Full test fold sentence counts | Fold 0=853, 1=853, 2=853, 3=853, 4=852 |
+| Full test predictions | Human=1,548; Machine=2,716 |
+| Full output contract checks | PASS: raw JSON order/text, CSV consistency, threshold=0.585 |
+
+The historical Novel Stacking **Macro-F1 0.917374** (vs RoBERTa
+0.909330) is **development validation** only. The unlabeled test has no
+known ground-truth labels. The saved full-run files are local-only:
+
+- `results/stage1_local_audit/stacking_full/test_predictions.json`
+- `results/stage1_local_audit/stacking_full/test_predictions.csv`
+- `results/stage1_local_audit/stacking_full_validation.json`
+
+Frozen executable protocol: source-group LPT assignment on the complete
+target dataset; matching fold SVM decision score and RoBERTa logit margin;
+OOF-fold z score standardization in order `[svm_z, roberta_z]`;
+matching saved Logistic Regression meta-model; threshold **0.585**.
+**Do not substitute** single-model SVM threshold 0.52, five-fold averaging,
+or the unrelated `scripts/predict.py --model-type fusion`.
+
+Remaining before course submission: compare the teacher's actual required
+file format against this generic output; create an adapter only if required.
+No unsupported claim of unseen test performance should be made.
