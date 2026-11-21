@@ -243,8 +243,10 @@ The Context OOF trainer tokenizes the serialized
 \`[PREVIOUS] ... [TARGET] ... [NEXT] ...\` input with truncation enabled and
 \`transformer.max_length\` (currently 256). The following audit uses fast-tokenizer
 offset mappings to count target tokens before and after the same configured
-truncation operation. It reports fold, label, target-character-length, previous-
-context-length, and next-context-length aggregates only.
+truncation operation for each fold's training and validation windows, plus the
+shared Novel Validation windows. It reports fold, split, label,
+target-character-length, previous-context-length, and next-context-length
+aggregates only.
 
 \`\`\`bash
 python scripts/audit_context_target_token_retention.py \\
