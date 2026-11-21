@@ -195,3 +195,17 @@ correct, does not make Novel Validation an independent test set, and does not
 explain the Fold 4 ranking-metric degradation. Any mismatch in source CSV
 versions, normalization, manifest ordering, or fold exports must be resolved
 before proceeding to a stricter de-duplication experiment.
+
+
+### Synthetic regression tests
+
+Run the synthetic checks without project data or model weights:
+
+```bash
+python -m unittest tests.test_data_integrity_audits -v
+```
+
+The tests cover conflict-category accounting, text-free aggregate output, a
+synthetic two-fold Context OOF materialization, Novel row mapping, and failure
+detection after a deliberately corrupted context export. They do not replace
+running both audit scripts against the real project split/fold files.
