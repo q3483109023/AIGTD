@@ -1,0 +1,31 @@
+{
+  "train_rows": 52864,
+  "validation_rows": 13607,
+  "unique_normalized_text_train": 41255,
+  "unique_normalized_text_validation": 10950,
+  "duplicate_groups_all_splits": 6913,
+  "cross_split_duplicate_groups": 731,
+  "cross_split_duplicate_rows": 8287,
+  "conflicting_label_duplicate_groups": 56,
+  "id_columns": [
+    "article_key",
+    "article_id"
+  ],
+  "article_id_source_alias_audit": {},
+  "fold_manifest_audit": {
+    "manifest_rows": 52864,
+    "folds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "normalized_text_groups_spanning_multiple_oof_folds": 1020,
+    "rows_in_those_groups": 7744,
+    "article_key_spanning_multiple_folds_groups": 0,
+    "source_article_id_spanning_multiple_folds_groups": 0
+  },
+  "normalization": "Unicode NFKC + casefold + collapsed whitespace; punctuation retained",
+  "warning": "Repeated text is not automatically leakage or an error; inspect label conflicts and article/source grouping before changing splits. No rows were deleted or relabeled."
+}
