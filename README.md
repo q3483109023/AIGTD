@@ -202,7 +202,7 @@ before proceeding to a stricter de-duplication experiment.
 Run the synthetic checks without project data or model weights:
 
 ```bash
-python -m unittest tests.test_data_integrity_audits -v
+python -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
 The tests cover conflict-category accounting, text-free aggregate output, a
