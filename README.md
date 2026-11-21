@@ -359,3 +359,29 @@ dry-run and validate the result. The CI replay proves compatibility of saved
 meta predictions, not the correctness of the **GPU checkpoint forward pass**.
 Output paths are ignored locally. The original Novel development scores
 are not blind-test accuracy/F1; the 500-record unlabeled test has no labels.
+
+
+## E2: no-retraining selective Context study (exploratory)
+
+The executable frozen baseline remains five-fold OOF Stacking; its
+500-article unlabeled-test inference was accepted on the private server.
+
+A separate E2 experiment compares **strictly paired** Sentence-matched
+and Context OOF predictions across the same 52,864 examples and five
+strict-window-purged folds. It tests fixed averaging, length rules and a
+simple long-target Human-veto without training a new neural model.
+
+```bash
+python -m unittest discover -s tests -p 'test_e2_selective_context.py' -v
+python -m scripts.experiment_e2_selective_context \
+  --input-dir results/context_oof \
+  --output-dir results/e2_selective_context \
+  --bootstrap-reps 2000 --seed 2026
+```
+
+See `docs/e2_selective_context_protocol.md` for the exact rule,
+other-four-fold selection procedure, source-cluster bootstrap, current
+aggregate findings and Machine-recall tradeoff. Results are **development
+OOF**, not an independent test or a fair direct ranking versus the
+different-protocol Stacking Novel Validation. Generated local outputs
+are ignored by Git.

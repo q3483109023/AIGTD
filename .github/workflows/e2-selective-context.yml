@@ -1,0 +1,32 @@
+name: E2 selective context paired-OOF experiment
+on:
+  push:
+    branches: [experiment/e2-selective-context]
+  pull_request:
+    paths:
+      - "scripts/experiment_e2_selective_context.py"
+      - "tests/test_e2_selective_context.py"
+      - ".github/workflows/e2-selective-context.yml"
+permissions:
+  contents: read
+jobs:
+  paired-e2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install lightweight evaluation dependencies
+        run: python -m pip install "numpy>=1.23" "pandas>=1.5" "scikit-learn>=1.2,<2.0" "scipy>=1.9" joblib pyyaml
+      - name: Synthetic leakage and alignment tests
+        run: |
+          python -m py_compile scripts/experiment_e2_selective_context.py
+          python -m unittest discover -s tests -p 'test_e2_selective_context.py' -v
+      - name: Evaluate already-tracked paired OOF data (aggregate only)
+        run: |
+          python -m scripts.experiment_e2_selective_context \
+            --input-dir results/context_oof \
+            --output-dir results/e2_selective_context \
+            --bootstrap-reps 1000 \
+            --seed 2026
