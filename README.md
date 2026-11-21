@@ -68,7 +68,7 @@ The script saves raw logit margin (`roberta_logit_margin`) as well as softmax sc
 
 ## Why score Novel data with every fold model?
 
-Each OOF base model is trained on about 70.6%-71.0% of the original training rows after fold-specific purging. Scoring Novel with the same five fold models preserves the fold-model score scale for the later meta-model, rather than mixing OOF scores from smaller models with scores from a single model refit on all rows. The later stacking stage should apply the meta-model to each fold's paired SVM/RoBERTa scores and average the five meta predictions.
+Each OOF base model is trained on about 70.6%-71.0% of the original training rows after fold-specific purging. Scoring Novel with the same five fold models preserves the fold-model score scale for the later meta-model, rather than mixing OOF scores from smaller models with scores from a single model refit on all rows. The implemented OOF Stacking stage assigns each Novel source group to exactly one fold, uses that fold's paired SVM/RoBERTa margins normalized with saved OOF-fold statistics, and applies the matching cross-fitted meta-model. **Do not average the five meta predictions:** that is a different inference protocol.
 
 ## Important statistical notes
 
