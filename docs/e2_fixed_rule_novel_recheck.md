@@ -123,3 +123,31 @@ the resulting predictive gain is still *development evidence*.
    length-conditioned selection of context, quantified alongside Human
    FP and Machine FN. Avoid claiming it establishes statistical
    false-positive guarantees or beats Stacking under a common split.
+
+## Private-server 2,000-replicate acceptance record (2026-11-22)
+
+The user independently ran the commands above on the private Ubuntu server.
+All **six** regression tests passed, followed by the real 11,682-target Novel
+evaluation returning `"status": "PASS"`, with five-fold-mean reference
+metrics matching the saved historical report. Each model had **58,410**
+fold prediction rows before target-level aggregation. There were **619**
+unique source groups.
+
+The observed deterministic test metrics reproduced the GitHub CI values:
+
+| Protocol | Context Macro-F1 | Fixed-veto Macro-F1 | ΔMacro-F1 | 2,000 source bootstrap 95% percentile CI |
+|---|---:|---:|---:|---|
+| Five-fold probability mean | 0.906406 | 0.912574 | +0.006168 | **[+0.003962, +0.008624]** |
+| Source-fold matched | 0.895837 | 0.905625 | +0.009788 | **[+0.006861, +0.012892]** |
+
+The predicted labels, metrics, fixed **20-word** condition and
+**0.5** classification threshold were unchanged. The user verified
+`reference_five_fold_mean_baselines_match=true`. This is still
+development evidence based on reused Novel Validation, not a fresh
+independent test or teacher-upload-format validation.
+
+**Stage decision:** close E2 as a successful *exploratory* course experiment.
+Do not introduce additional hyperparameters, E3 training or test-label
+claims merely to increase a development score. Retain the separate frozen
+Stacking inference pipeline and use the above numbers only in the
+correctly identified paired Context/Sentence experiment.
