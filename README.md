@@ -68,7 +68,7 @@ The script saves raw logit margin (`roberta_logit_margin`) as well as softmax sc
 
 ## Why score Novel data with every fold model?
 
-Each OOF base model is trained on about 70.6%-71.0% of the original training rows after fold-specific purging. Scoring Novel with the same five fold models preserves the fold-model score scale for the later meta-model, rather than mixing OOF scores from smaller models with scores from a single model refit on all rows. The later stacking stage should apply the meta-model to each fold's paired SVM/RoBERTa scores and average the five meta predictions.
+Each OOF base model is trained on about 70.6%-71.0% of the original training rows after fold-specific purging. Scoring Novel with the same five fold models preserves the fold-model score scale for the later meta-model, rather than mixing OOF scores from smaller models with scores from a single model refit on all rows. The implemented OOF Stacking stage assigns each Novel source group to exactly one fold, uses that fold's paired SVM/RoBERTa margins normalized with saved OOF-fold statistics, and applies the matching cross-fitted meta-model. **Do not average the five meta predictions:** that is a different inference protocol.
 
 ## Important statistical notes
 
@@ -336,3 +336,26 @@ does not prove the real data/model pipeline worked. The default `predict.py`
 neural inference requires locally retained weight files; its `fusion` option
 is **not** the OOF Stacking implementation. Unlabeled test predictions do
 not contain ground truth and have no legitimate test Accuracy/F1.
+
+
+## Stage 1 completion: existing OOF Stacking inference (no retraining)
+
+`scripts/predict_oof_stacking.py` implements fold-matched test-time
+inference using the **already-frozen** five-fold SVM/RoBERTa checkpoints,
+OOF-derived per-fold standardization and fold-matched Logistic Stacking.
+It does not implement an unrelated 5-fold mean-probability ensemble.
+
+**Read** `docs/oof_stacking_test_inference.md` for the exact protocol,
+historical Novel replay, two-article model checkpoint dry-run, full 500-record
+test run and privacy-safe schema checks. Start with:
+
+```bash
+python scripts/predict_oof_stacking.py \
+  --replay-novel results/oof_fusion/novel_fusion_predictions.csv
+```
+
+Only after replay PASS, run the 16-sentence SVM/RoBERTa/Stacking checkpoint
+dry-run and validate the result. The CI replay proves compatibility of saved
+meta predictions, not the correctness of the **GPU checkpoint forward pass**.
+Output paths are ignored locally. The original Novel development scores
+are not blind-test accuracy/F1; the 500-record unlabeled test has no labels.
