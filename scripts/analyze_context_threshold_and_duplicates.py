@@ -91,7 +91,7 @@ def threshold_analysis(a: pd.DataFrame, b: pd.DataFrame, out: Path, step: float)
     if not 0 < step <= 0.1:
         raise ValueError("--threshold-step must be in (0, 0.1]")
     coarse = np.arange(step, 0.951, step)
-    fine = np.arange(0.95, 0.999951, 0.0005)
+    fine = np.arange(0.95, 0.999991, 0.0001)
     thresholds = np.unique(np.round(np.concatenate([coarse, fine, [0.9999]]), 6))
     rows, fold_rows, opt_rows, dist_rows = [], [], [], []
     for model, df in (("sentence_matched", a), ("context", b)):
