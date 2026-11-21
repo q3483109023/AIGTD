@@ -1,0 +1,6 @@
+fold,candidate_train_rows,expected_purged_rows,expected_train_rows,actual_train_rows,validation_rows,train_validation_component_overlap,train_novel_window_component_overlap,source_id_overlap,article_key_overlap,train_human_rows,train_machine_rows,validation_fold_values_match,pass
+0,42298,9782,32516,32516,10566,0,0,0,0,13121,19395,True,True
+1,42297,9947,32350,32350,10567,0,0,0,0,13092,19258,True,True
+2,42286,9902,32384,32384,10578,0,0,0,0,13080,19304,True,True
+3,42290,9506,32784,32784,10574,0,0,0,0,13153,19631,True,True
+4,42285,9940,32345,32345,10579,0,0,0,0,13072,19273,True,True

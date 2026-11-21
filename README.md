@@ -128,3 +128,178 @@ python scripts/train_context_oof.py \
 Each run writes OOF predictions (one prediction per original train row), five-fold Novel Validation predictions, fold summaries, and fold checkpoints. Compare `sentence_matched` against `context` first; the old `roberta_oof_predictions.csv` is a secondary historical reference because its target-only purge is less strict.
 
 No threshold tuning, stacking refit, or final test prediction is performed by these scripts. Evaluate paired OOF metrics and article/source-cluster bootstrap first. Novel fold predictions are diagnostic validation results, not an independent test set.
+
+
+## Stage 3: Data-quality and Context OOF integrity audits
+
+These checks reuse existing split/fold CSVs and do **not** retrain models or
+modify source data. Run them before interpreting the Context-window result as
+the preferred model.
+
+### Step 1: Locate cross-split conflicting duplicate texts by article
+
+```bash
+python scripts/analyze_conflict_article_distribution.py \
+  --train data/splits/train.csv \
+  --validation data/splits/validation.csv \
+  --aggregate-output results/analysis_review/article_conflict_distribution_aggregate.json \
+  --detail-dir results/duplicate_data_audit/article_distribution_local_only
+```
+
+The script recomputes normalized duplicate groups and reports the number of
+conflict groups, the number of involved `article_key` / `article_id` values,
+how many conflict groups and rows each article contributes, the distribution
+of groups per article, and top-1/top-5/top-10 article concentration. It also
+rechecks the handover's expected 38 groups rather than assuming that count.
+
+The aggregate JSON contains counts only. The optional per-article detail CSVs
+contain article identifiers and are **local-only**; they are covered by
+`.gitignore` and must not be committed or pasted into public issues/PRs.
+No raw or normalized sentence text is written by this script.
+
+### Step 2: Independently verify Context OOF purge and Novel mapping
+
+```bash
+python scripts/audit_context_oof_independently.py \
+  --train data/splits/train.csv \
+  --validation data/splits/validation.csv \
+  --row-manifest results/oof_purged_group_audit/row_fold_manifest.csv \
+  --folds-dir data/context_oof_folds \
+  --output-dir results/analysis_review \
+  --n-splits 5 \
+  --context-window 1 \
+  --expected-novel-rows 11682
+```
+
+This auditor independently rebuilds previous/target/next windows and the
+expected fold-specific training rows from the canonical split files and row
+manifest. It then checks:
+- exact row membership of each exported fold train/validation CSV;
+- serialized context equality with independently reconstructed windows;
+- zero overlap between train-window components and outer-validation windows;
+- zero overlap between train-window components and Novel Validation windows;
+- source-ID and article-key separation;
+- both classes remain in each fold's training set;
+- every training row appears in exactly one OOF validation fold;
+- Novel Validation row IDs, target text, labels, article positions, and context
+  match the independently recomputed Novel subset.
+
+Only aggregate counts and PASS/FAIL checks are exported. The script supports
+the already-used `context_window=1` protocol and does not change any data.
+
+### Interpretation boundary
+
+A PASS confirms that the materialized fold files match the current canonical
+CSVs and manifest under this protocol. It does not prove label semantics are
+correct, does not make Novel Validation an independent test set, and does not
+explain the Fold 4 ranking-metric degradation. Any mismatch in source CSV
+versions, normalization, manifest ordering, or fold exports must be resolved
+before proceeding to a stricter de-duplication experiment.
+
+
+### Synthetic regression tests
+
+Run the synthetic checks without project data or model weights:
+
+```bash
+python -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+The tests cover conflict-category accounting, text-free aggregate output, a
+synthetic two-fold Context OOF materialization, Novel row mapping, and failure
+detection after a deliberately corrupted context export. They do not replace
+running both audit scripts against the real project split/fold files.
+
+
+## Stage 4: Finish baseline review without exposing row-level diagnostics
+
+### Step 1: Rebuild corrected Stacking aggregate analysis
+
+The analysis script uses `stacker_p_machine` for Stacking ranking metrics and
+per-fold standardized `roberta_z` / `svm_z` for the base models. Do not pool
+fold-local raw RoBERTa/SVM probabilities for ROC-AUC or Average Precision.
+
+Run the corrected analysis in aggregate-only mode:
+
+```bash
+python scripts/analyze_stacking_errors.py \\
+  --input results/oof_fusion/novel_fusion_predictions.csv \\
+  --output-dir results/stacking_error_analysis_corrected \\
+  --fusion-config results/oof_fusion/fusion_config.json \\
+  --bootstrap-reps 2000 \\
+  --seed 42 \\
+  --aggregate-only
+```
+
+This mode writes only aggregate metrics, length/domain summaries, paired
+McNemar results, cluster-bootstrap differences, the Stacker/RoBERTa correctness
+group summary, and a text summary. It suppresses sentence-level error files,
+representative examples, duplicate-text exports, and per-article/per-source-ID
+tables. The output directory is ignored by Git by default.
+
+### Step 2: Audit Context target-token retention before any retraining
+
+The Context OOF trainer tokenizes the serialized
+`[PREVIOUS] ... [TARGET] ... [NEXT] ...` input with truncation enabled and
+`transformer.max_length` (currently 256). The following audit uses fast-tokenizer
+offset mappings to count target tokens before and after the same configured
+truncation operation for each fold's training and validation windows, plus the
+shared Novel Validation windows. It reports fold, split, label,
+target-character-length, previous-context-length, and next-context-length
+aggregates only.
+
+```bash
+python scripts/audit_context_target_token_retention.py \\
+  --config configs/experiment.yaml \\
+  --folds-dir data/context_oof_folds \\
+  --model-dir models/oof/context \\
+  --tokenizer-path models/oof/context/context_fold_0 \\
+  --output-dir results/context_target_token_retention \\
+  --n-splits 5 \\
+  --batch-size 256
+```
+
+Outputs:
+- `fold_summary.csv`: fold/split and Human/Machine target-retention summaries.
+- `stratified_summary.csv`: target-length, previous-context-length, and
+  next-context-length strata, split by fold and label.
+- `run_metadata.json`: tokenizer class, truncation side, max length, counts,
+  and privacy/export guarantees.
+
+No row-level text, article identifiers, or sentence identifiers are written.
+The target-length buckets (1-70, 71-98, 99-130, >130 characters) follow the
+Fold 4 diagnosis boundaries. This audit diagnoses token retention; it does
+not itself establish that truncation caused Fold 4's ranking-metric decline.
+
+Do not retrain the five-fold models until the corrected Stacking aggregates and
+the Context token-retention report have been reviewed. If the audit shows
+material target-token loss, design a separate controlled truncation/window
+ablation rather than silently changing the frozen experiment.
+
+
+### Step 3: Build a protocol-aware unified baseline comparison
+
+After the required aggregate CSVs exist, run:
+
+```bash
+python scripts/build_baseline_comparison.py \\
+  --results-dir results \\
+  --output-dir results/analysis_review
+```
+
+This writes:
+- `baseline_comparison.csv`: SVM, RoBERTa, Stacking, Veto, Sentence-only,
+  and Context metrics with explicit `protocol_id`, dataset, threshold source,
+  and aggregation method. The current aggregate-source snapshot is also
+  tracked as `results/analysis_review/baseline_comparison_reference.csv`.
+- `context_fold_diagnostics.csv`: all five matched Context/Sentence-only
+  OOF folds, retaining Fold 4 rather than hiding it in a pooled mean.
+
+The table deliberately separates OOF cross-fit diagnostics, Fold-matched Novel
+development results, five-fold mean-score ranking-only results, matched
+Context pooled OOF, Context Novel mean-probability diagnostics, and single-
+split Novel-threshold-selected results. Do not sort these rows as one
+leaderboard. In particular, single-split SVM/RoBERTa thresholds were selected
+on Novel Validation and must not be compared as if they were untouched test
+results. Raw pooled Context AUC/AP and fold-standardized ranking AUC/AP are
+labelled as distinct score aggregation protocols.
