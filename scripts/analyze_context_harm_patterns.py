@@ -79,6 +79,18 @@ def load_pair(root: Path) -> pd.DataFrame:
         out.context_p_machine, 1 - out.context_p_machine
     )
     out["confidence_delta"] = out.context_confidence - out.sentence_confidence
+    # Paired proper-scoring-rule deltas: positive means Context is worse.
+    # Clip only for log-loss, so probabilities at exactly 0/1 stay finite.
+    y = out.y_true.to_numpy(dtype=float)
+    ps = out.sentence_p_machine.to_numpy(dtype=float)
+    pc = out.context_p_machine.to_numpy(dtype=float)
+    out["brier_delta"] = (pc - y) ** 2 - (ps - y) ** 2
+    eps = 1e-15
+    ps_clip = np.clip(ps, eps, 1 - eps)
+    pc_clip = np.clip(pc, eps, 1 - eps)
+    sentence_loss = -(y * np.log(ps_clip) + (1 - y) * np.log1p(-ps_clip))
+    context_loss = -(y * np.log(pc_clip) + (1 - y) * np.log1p(-pc_clip))
+    out["logloss_delta"] = context_loss - sentence_loss
     return out
 
 
@@ -123,9 +135,6 @@ def outcome_summary(df: pd.DataFrame) -> pd.DataFrame:
             "median_target_chars": float(g.target_chars.median()),
             "mean_previous_chars": float(g.previous_chars.mean()),
             "mean_next_chars": float(g.next_chars.mean()),
-            "mean_brier_delta": float(g.brier_delta.mean()),
-            "mean_logloss_delta": float(g.logloss_delta.mean()),
-            "fraction_brier_worsened": float((g.brier_delta > 0).mean()),
             "mean_sentence_confidence": float(g.sentence_confidence.mean()),
             "mean_context_confidence": float(g.context_confidence.mean()),
             "mean_confidence_delta": float(g.confidence_delta.mean()),
