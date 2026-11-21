@@ -3,12 +3,17 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import json
+import sys
+from types import SimpleNamespace
+from unittest.mock import patch
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from scripts.predict_oof_stacking import replay_novel, score_fold
+from scripts.predict_oof_stacking import infer_test, replay_novel, score_fold
+from scripts.validate_test_predictions import validate
 from scripts.train_oof_fusion import assign_source_groups_balanced
 
 
@@ -85,6 +90,49 @@ class StackInferenceSyntheticTests(unittest.TestCase):
             table.to_csv(path, index=False)
             with self.assertRaisesRegex(ValueError, "replay mismatch"):
                 replay_novel(path, self.config, self.stats, self.meta)
+
+    def test_mocked_end_to_end_preserves_article_order(self):
+        with tempfile.TemporaryDirectory() as root:
+            folder = Path(root)
+            raw = folder / "raw.json"
+            raw.write_text(json.dumps([
+                {"id": "repeat", "domain": "news", "sent": ["Alpha.", "Beta."]},
+                {"id": "repeat", "domain": "news", "sent": ["Gamma."]},
+            ]), encoding="utf-8")
+            svm_dir, rob_dir, output = folder / "svm", folder / "roberta", folder / "out"
+            svm_dir.mkdir()
+            rob_dir.mkdir()
+            for k in range(5):
+                (svm_dir / f"svm_fold_{k}.joblib").write_bytes(b"fake")
+                ckpt = rob_dir / f"roberta_fold_{k}"
+                ckpt.mkdir()
+                for name in ("config.json", "tokenizer.json", "model.safetensors"):
+                    (ckpt / name).write_bytes(b"fake")
+                (ckpt / "oof_metadata.json").write_text(
+                    json.dumps({"fold": k, "max_length": 256}), encoding="utf-8")
+            class FakePipeline:
+                def decision_function(self, texts):
+                    return np.array([1.0] * len(texts))
+            fake_bundle = lambda path: {
+                "fold": int(Path(path).stem.rsplit("_", 1)[-1]),
+                "pipeline": FakePipeline(),
+            }
+            fake_torch = SimpleNamespace(cuda=SimpleNamespace(is_available=lambda: False))
+            with patch.dict(sys.modules, {"torch": fake_torch}), \
+                 patch("scripts.predict_oof_stacking.joblib.load", side_effect=fake_bundle), \
+                 patch("scripts.predict_oof_stacking.infer_roberta_margins",
+                       side_effect=lambda texts, *_: np.array([1.0] * len(texts))):
+                report = infer_test(raw, output, svm_dir, rob_dir,
+                                    self.config, self.stats, self.meta,
+                                    batch_size=8, device_arg="auto",
+                                    expected_articles=2, expected_sentences=3)
+            self.assertEqual(report["status"], "COMPLETED_AWAITING_SCHEMA_VALIDATION")
+            self.assertEqual(report["sentences"], 3)
+            validation = validate(raw, output / "test_predictions.json",
+                                  output / "test_predictions.csv", 2, 3,
+                                  threshold=self.config["stacker_threshold"])
+            self.assertEqual(validation["status"], "PASS")
+            self.assertTrue(validation["threshold_checked"])
 
     def test_development_replay_detects_missing_fold(self):
         with tempfile.TemporaryDirectory() as folder:
