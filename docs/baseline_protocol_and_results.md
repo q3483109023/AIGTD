@@ -113,3 +113,10 @@ groups, McNemar counts, bootstrap structure, and **corrected fold-standardized
 AUC/AP consistency** against the saved fusion reference. It does not rerun the
 underlying bootstrap independently, establish nested CV, or confer a statistical
 guarantee. If any check fails, do not freeze results.
+
+
+## E. Corrected aggregate CI execution evidence (2026-11-22)
+
+**Completed:** [GitHub Actions run #44924113524](https://github.com/q3483109023/AIGTD/actions/runs/44924113524) successfully ran `scripts/analyze_stacking_errors.py --aggregate-only` on the already-committed fold-matched Novel prediction file and passed `scripts/verify_stacking_aggregates.py`. The CI log confirms 11,682 rows, 1,017 article records, 619 source groups, Stacking Acc=0.921674/Macro-F1=0.917374, corrected RoBERTa AUC=0.958178, corrected SVM AUC=0.950582, and agreement counts 10,501/731/266/184. The verifier checks the pairwise bootstrap output structure and arithmetic but is **not** a separate implementation of source-cluster resampling. The results remain development-only, not an independent test result.
+
+The CI run used the tracked repository snapshot, **not** the private user's live server. Local artifact inventory, checkpoint availability, SVM two-record inference, and the final 500-record test prediction remain unverified until run on that server.
