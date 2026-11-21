@@ -310,6 +310,11 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--fusion-config", default="results/oof_fusion/fusion_config.json",
                         help="OOF-selected decision thresholds used by the saved prediction columns.")
+    parser.add_argument(
+        "--aggregate-only",
+        action="store_true",
+        help="Write aggregate metrics only; suppress every row-level/text/identifier export.",
+    )
     args = parser.parse_args()
 
     input_path = Path(args.input)
@@ -351,21 +356,22 @@ def main() -> int:
         metric_rows.append({"split": "novel_validation_fold_matched", "model": model, **metrics})
     pd.DataFrame(metric_rows).to_csv(outdir / "metrics_all_models.csv", index=False, encoding="utf-8-sig")
 
-    # Primary comparison: Stacker vs RoBERTa.
+    # Primary comparison: Stacker vs RoBERTa. This group summary is aggregate-only.
     comp = group_comparison(df, "stacker_pred", "roberta_pred_oof_threshold", "stacker", "roberta")
     group_summary(comp).to_csv(outdir / "stacker_vs_roberta_groups.csv", index=False, encoding="utf-8-sig")
-    for group in ["both_correct", "stacker_only_correct", "roberta_only_correct", "both_wrong"]:
-        g = comp.loc[comp["comparison_group"].eq(group)].copy()
-        g.to_csv(outdir / f"{group}.csv", index=False, encoding="utf-8-sig")
-        # Up to 100 representative rows, deterministic order. Full group is retained above.
-        if len(g):
-            sort_cols = ["stacker_p_machine", "roberta_z"]
-            g.sort_values(sort_cols, ascending=False).head(100).to_csv(
-                outdir / f"{group}_examples_top100.csv", index=False, encoding="utf-8-sig"
-            )
+    if not args.aggregate_only:
+        for group in ["both_correct", "stacker_only_correct", "roberta_only_correct", "both_wrong"]:
+            g = comp.loc[comp["comparison_group"].eq(group)].copy()
+            g.to_csv(outdir / f"{group}.csv", index=False, encoding="utf-8-sig")
+            # Up to 100 representative rows, deterministic order. Full group is retained above.
+            if len(g):
+                sort_cols = ["stacker_p_machine", "roberta_z"]
+                g.sort_values(sort_cols, ascending=False).head(100).to_csv(
+                    outdir / f"{group}_examples_top100.csv", index=False, encoding="utf-8-sig"
+                )
 
-    # Cross-comparison with all models; useful to understand SVM/Veto too.
-    per_model_error_files(df, outdir, thresholds)
+        # Cross-comparison with all models; useful to understand SVM/Veto too.
+        per_model_error_files(df, outdir, thresholds)
 
     # Domain and sentence-length subgroup metrics.
     df["length_bucket"] = pd.cut(
@@ -382,26 +388,36 @@ def main() -> int:
         unique_article_keys=("article_key", "nunique"),
         unique_source_ids=("article_id", "nunique"),
         unique_labels=("y_true", "nunique"),
-        text_sample=("text", "first"),
     ).reset_index()
     dup = dup.loc[dup["occurrences"] > 1].copy()
-    dup.to_csv(outdir / "duplicate_text_groups.csv", index=False, encoding="utf-8-sig")
-    dup.loc[dup["unique_labels"] > 1].to_csv(
-        outdir / "conflicting_label_text_groups.csv", index=False, encoding="utf-8-sig"
-    )
     conflict_norms = set(dup.loc[dup["unique_labels"] > 1, "norm_text"])
-    df.loc[df["norm_text"].isin(conflict_norms)].to_csv(
-        outdir / "conflicting_label_text_occurrences.csv", index=False, encoding="utf-8-sig"
-    )
+    if not args.aggregate_only:
+        # These exports contain normalized sentence text and article identifiers.
+        dup_with_text = dup.merge(
+            df[["norm_text", "text"]].drop_duplicates("norm_text"),
+            on="norm_text",
+            how="left",
+            validate="one_to_one",
+        ).rename(columns={"text": "text_sample"})
+        dup_with_text.to_csv(
+            outdir / "duplicate_text_groups.csv", index=False, encoding="utf-8-sig"
+        )
+        dup.loc[dup["unique_labels"] > 1].to_csv(
+            outdir / "conflicting_label_text_groups.csv", index=False, encoding="utf-8-sig"
+        )
+        df.loc[df["norm_text"].isin(conflict_norms)].to_csv(
+            outdir / "conflicting_label_text_occurrences.csv", index=False, encoding="utf-8-sig"
+        )
 
-    # Article and source ID level performance summaries.
-    for group_col, out_name in [("article_key", "metrics_by_article_record.csv"), ("article_id", "metrics_by_source_id.csv")]:
-        rows = []
-        for key, g in df.groupby(group_col, dropna=False):
-            for model, pred_col in PREDICTIONS.items():
-                met = calc_metrics(g["y_true"].to_numpy(int), g[pred_col].to_numpy(int))
-                rows.append({group_col: key, "model": model, **met})
-        pd.DataFrame(rows).to_csv(outdir / out_name, index=False, encoding="utf-8-sig")
+    if not args.aggregate_only:
+        # Per-article/source-ID files contain identifiers and remain local-only.
+        for group_col, out_name in [("article_key", "metrics_by_article_record.csv"), ("article_id", "metrics_by_source_id.csv")]:
+            rows = []
+            for key, g in df.groupby(group_col, dropna=False):
+                for model, pred_col in PREDICTIONS.items():
+                    met = calc_metrics(g["y_true"].to_numpy(int), g[pred_col].to_numpy(int))
+                    rows.append({group_col: key, "model": model, **met})
+            pd.DataFrame(rows).to_csv(outdir / out_name, index=False, encoding="utf-8-sig")
 
     # Paired cluster bootstrap; source-ID is primary, article_key is sensitivity analysis.
     boot_rows: List[dict] = []
@@ -473,6 +489,7 @@ def main() -> int:
         "- Stacker AUC/AP use stacker_p_machine; base-model AUC/AP use per-fold standardized svm_z/roberta_z.",
         "- Raw SVM/RoBERTa fold probabilities are not pooled for AUC/AP because their fold-local scales differ.",
         "- Error-example margins are measured against the OOF-selected threshold loaded from fusion_config.json.",
+        f"- Output mode: {'aggregate-only (no row-level exports)' if args.aggregate_only else 'full local diagnostics'}.",
     ]
     (outdir / "summary.txt").write_text("\n".join(lines), encoding="utf-8")
 
