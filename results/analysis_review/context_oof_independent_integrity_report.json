@@ -18,10 +18,10 @@
       "sentence_index": 0,
       "text": 0,
       "label_id": 0,
-      "context_text": 11623,
+      "context_text": 0,
       "article_id": 0
     },
-    "pass": false,
+    "pass": true,
     "novel_row_id_is_contiguous_in_export_order": true
   },
   "recomputed_novel_target_components": 10219,
@@ -46,9 +46,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 32276
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "validation_export_exact_match": {
         "expected_rows": 10566,
@@ -62,9 +62,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 10460
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "train_validation_component_overlap": 0,
       "train_novel_window_component_overlap": 0,
@@ -73,7 +73,7 @@
       "train_human_rows": 13121,
       "train_machine_rows": 19395,
       "validation_fold_values_match": true,
-      "pass": false
+      "pass": true
     },
     {
       "fold": 1,
@@ -94,9 +94,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 32053
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "validation_export_exact_match": {
         "expected_rows": 10567,
@@ -110,9 +110,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 10512
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "train_validation_component_overlap": 0,
       "train_novel_window_component_overlap": 0,
@@ -121,7 +121,7 @@
       "train_human_rows": 13092,
       "train_machine_rows": 19258,
       "validation_fold_values_match": true,
-      "pass": false
+      "pass": true
     },
     {
       "fold": 2,
@@ -142,9 +142,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 32136
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "validation_export_exact_match": {
         "expected_rows": 10578,
@@ -158,9 +158,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 10473
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "train_validation_component_overlap": 0,
       "train_novel_window_component_overlap": 0,
@@ -169,7 +169,7 @@
       "train_human_rows": 13080,
       "train_machine_rows": 19304,
       "validation_fold_values_match": true,
-      "pass": false
+      "pass": true
     },
     {
       "fold": 3,
@@ -190,9 +190,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 32490
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "validation_export_exact_match": {
         "expected_rows": 10574,
@@ -206,9 +206,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 10522
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "train_validation_component_overlap": 0,
       "train_novel_window_component_overlap": 0,
@@ -217,7 +217,7 @@
       "train_human_rows": 13153,
       "train_machine_rows": 19631,
       "validation_fold_values_match": true,
-      "pass": false
+      "pass": true
     },
     {
       "fold": 4,
@@ -238,9 +238,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 32051
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "validation_export_exact_match": {
         "expected_rows": 10579,
@@ -254,9 +254,9 @@
           "sentence_index": 0,
           "text": 0,
           "label_id": 0,
-          "context_text": 10518
+          "context_text": 0
         },
-        "pass": false
+        "pass": true
       },
       "train_validation_component_overlap": 0,
       "train_novel_window_component_overlap": 0,
@@ -265,10 +265,10 @@
       "train_human_rows": 13072,
       "train_machine_rows": 19273,
       "validation_fold_values_match": true,
-      "pass": false
+      "pass": true
     }
   ],
-  "overall_pass": false,
+  "overall_pass": true,
   "privacy": {
     "sentence_text_written_to_report": false,
     "article_identifiers_written_to_report": false,

@@ -53,7 +53,7 @@ def build_windows(frame: pd.DataFrame, window: int, name: str) -> pd.DataFrame:
             .itertuples(index=False, name=None)
         )
         by_index = {int(item[0]): item for item in records}
-        for index, _target_raw, target_norm in records:
+        for index, target_raw, target_norm in records:
             left = [by_index[j] for j in (int(index) - 1,) if j in by_index]
             right = [by_index[j] for j in (int(index) + 1,) if j in by_index]
             left_text = str(left[0][1]) if left else "[START]"
@@ -66,7 +66,7 @@ def build_windows(frame: pd.DataFrame, window: int, name: str) -> pd.DataFrame:
                 ) if part
             )
             serialized = (
-                f"[PREVIOUS] {left_text} [TARGET] {target_norm} [NEXT] {right_text}"
+                f"[PREVIOUS] {left_text} [TARGET] {target_raw} [NEXT] {right_text}"
             )
             lookup[(str(article_key), int(index))] = (serialized, parts)
 
