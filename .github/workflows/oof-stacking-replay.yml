@@ -1,0 +1,30 @@
+name: Verify OOF Stacking inference compatibility
+on:
+  push:
+    branches: [inference/oof-stacking-replay]
+  pull_request:
+    paths:
+      - "scripts/predict_oof_stacking.py"
+      - "tests/test_oof_stacking_inference.py"
+      - ".github/workflows/oof-stacking-replay.yml"
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install lightweight evaluation dependencies only (no neural weights)
+        run: python -m pip install "numpy>=1.23" "pandas>=1.5" "scikit-learn>=1.2,<2.0" "scipy>=1.9" joblib pyyaml
+      - name: Syntax and synthetic contract checks
+        run: |
+          python -m py_compile scripts/predict_oof_stacking.py tests/test_oof_stacking_inference.py
+          python -m unittest discover -s tests -p 'test_oof_stacking_inference.py' -v
+      - name: Replay 11682 already-saved development meta predictions
+        run: |
+          python scripts/predict_oof_stacking.py \
+            --fusion-dir results/oof_fusion \
+            --replay-novel results/oof_fusion/novel_fusion_predictions.csv
