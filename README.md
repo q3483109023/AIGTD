@@ -336,3 +336,26 @@ does not prove the real data/model pipeline worked. The default `predict.py`
 neural inference requires locally retained weight files; its `fusion` option
 is **not** the OOF Stacking implementation. Unlabeled test predictions do
 not contain ground truth and have no legitimate test Accuracy/F1.
+
+
+## Stage 1 completion: existing OOF Stacking inference (no retraining)
+
+`scripts/predict_oof_stacking.py` implements fold-matched test-time
+inference using the **already-frozen** five-fold SVM/RoBERTa checkpoints,
+OOF-derived per-fold standardization and fold-matched Logistic Stacking.
+It does not implement an unrelated 5-fold mean-probability ensemble.
+
+**Read** `docs/oof_stacking_test_inference.md` for the exact protocol,
+historical Novel replay, two-article model checkpoint dry-run, full 500-record
+test run and privacy-safe schema checks. Start with:
+
+```bash
+python scripts/predict_oof_stacking.py \
+  --replay-novel results/oof_fusion/novel_fusion_predictions.csv
+```
+
+Only after replay PASS, run the 16-sentence SVM/RoBERTa/Stacking checkpoint
+dry-run and validate the result. The CI replay proves compatibility of saved
+meta predictions, not the correctness of the **GPU checkpoint forward pass**.
+Output paths are ignored locally. The original Novel development scores
+are not blind-test accuracy/F1; the 500-record unlabeled test has no labels.
