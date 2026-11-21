@@ -9,21 +9,29 @@ venv/
 .idea/
 .vscode/
 
-# 系统文件
+# System files
 .DS_Store
 
-# 实验输出
+# Experiment outputs
 outputs/
 logs/
 
-# 模型权重和数据集
+# Model weights and datasets
 *.pth
 *.pt
 *.ckpt
 data/
 weights/
 
-# 环境变量
+# Environment variables
 .env
 # Large model weights
 *.safetensors
+
+# Local-only audits may contain article identifiers or row-level diagnostics.
+results/duplicate_data_audit/article_distribution_local_only/
+results/duplicate_data_audit/cross_split_label_conflicts_local_only.csv
+results/context_oof_fold4_diagnosis/fold_4_disagreements.csv
+results/context_oof_fold4_diagnosis/fold_4_context_harmed_examples.csv
+results/context_oof_fold4_diagnosis/fold_4_context_helped_examples.csv
+results/context_oof_independent_audit_local_only/
