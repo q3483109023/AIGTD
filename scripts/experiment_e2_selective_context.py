@@ -412,8 +412,21 @@ def main() -> None:
     (args.output_dir / "decision.json").write_text(
         json.dumps(result["decision"], ensure_ascii=False, indent=2), encoding="utf-8")
     print("E2 no-retraining analysis; 52,864 paired OOF rows expected by existing reference.")
-    print(result["overall"][["model", "n", "macro_f1", "accuracy", "fp_human_to_machine", "human_fpr"]]
+    print(result["overall"][["model", "n", "macro_f1", "accuracy",
+                              "fp_human_to_machine", "fn_machine_to_human",
+                              "human_fpr", "machine_recall"]]
           .to_string(index=False, float_format=lambda v: f"{v:.6f}"))
+    c = result["by_fold"].loc[result["by_fold"]["model"].eq("context")].set_index("fold")
+    g = result["by_fold"].loc[result["by_fold"]["model"].eq("fold_selected_rule")].set_index("fold")
+    print("Selected-rule vs Context paired per-fold differences:")
+    print(pd.DataFrame({
+        "fold": c.index,
+        "macro_f1_delta": (g["macro_f1"] - c["macro_f1"]).to_numpy(),
+        "human_fpr_delta": (g["human_fpr"] - c["human_fpr"]).to_numpy(),
+        "machine_recall_delta": (g["machine_recall"] - c["machine_recall"]).to_numpy(),
+    }).to_string(index=False, float_format=lambda v: f"{v:.6f}"))
+    print("Source-group paired bootstrap (selected minus Context):")
+    print(result["bootstrap"].to_string(index=False, float_format=lambda v: f"{v:.6f}"))
     print(json.dumps(result["decision"], ensure_ascii=False, indent=2))
     print(f"Aggregate-only results: {args.output_dir}")
 
