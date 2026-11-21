@@ -50,14 +50,11 @@ def main() -> None:
     results_dir = resolve_path(args.output_dir) if args.output_dir else cfg_path(cfg, "results_dir", "results")
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    processed_test = cfg_path(cfg, "processed_dir", "data/processed") / "test_sentences.csv"
-    if processed_test.exists() and args.test is None:
-        test_df = pd.read_csv(processed_test)
-    else:
-        test_path = resolve_path(args.test) if args.test else cfg_path(cfg, "test_json", "data/raw/AIGTD_test_without_labels.json")
-        test_df, _ = parse_test_json(test_path)
-        processed_test.parent.mkdir(parents=True, exist_ok=True)
-        test_df.to_csv(processed_test, index=False, encoding="utf-8-sig")
+    # Always parse the requested raw JSON. A pre-existing processed CSV can be
+    # stale or belong to a previous dry-run. Inference must not silently reuse
+    # it or overwrite shared processed data when --test is supplied.
+    test_path = resolve_path(args.test) if args.test else cfg_path(cfg, "test_json", "data/raw/AIGTD_test_without_labels.json")
+    test_df, _ = parse_test_json(test_path)
     if test_df.empty:
         raise ValueError("测试数据没有任何句子，无法预测。")
 
