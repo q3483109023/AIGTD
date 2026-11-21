@@ -209,3 +209,67 @@ The tests cover conflict-category accounting, text-free aggregate output, a
 synthetic two-fold Context OOF materialization, Novel row mapping, and failure
 detection after a deliberately corrupted context export. They do not replace
 running both audit scripts against the real project split/fold files.
+
+
+## Stage 4: Finish baseline review without exposing row-level diagnostics
+
+### Step 1: Rebuild corrected Stacking aggregate analysis
+
+The analysis script uses \`stacker_p_machine\` for Stacking ranking metrics and
+per-fold standardized \`roberta_z\` / \`svm_z\` for the base models. Do not pool
+fold-local raw RoBERTa/SVM probabilities for ROC-AUC or Average Precision.
+
+Run the corrected analysis in aggregate-only mode:
+
+\`\`\`bash
+python scripts/analyze_stacking_errors.py \\
+  --input results/oof_fusion/novel_fusion_predictions.csv \\
+  --output-dir results/stacking_error_analysis_corrected \\
+  --fusion-config results/oof_fusion/fusion_config.json \\
+  --bootstrap-reps 2000 \\
+  --seed 42 \\
+  --aggregate-only
+\`\`\`
+
+This mode writes only aggregate metrics, length/domain summaries, paired
+McNemar results, cluster-bootstrap differences, the Stacker/RoBERTa correctness
+group summary, and a text summary. It suppresses sentence-level error files,
+representative examples, duplicate-text exports, and per-article/per-source-ID
+tables. The output directory is ignored by Git by default.
+
+### Step 2: Audit Context target-token retention before any retraining
+
+The Context OOF trainer tokenizes the serialized
+\`[PREVIOUS] ... [TARGET] ... [NEXT] ...\` input with truncation enabled and
+\`transformer.max_length\` (currently 256). The following audit uses fast-tokenizer
+offset mappings to count target tokens before and after the same configured
+truncation operation. It reports fold, label, target-character-length, previous-
+context-length, and next-context-length aggregates only.
+
+\`\`\`bash
+python scripts/audit_context_target_token_retention.py \\
+  --config configs/experiment.yaml \\
+  --folds-dir data/context_oof_folds \\
+  --model-dir models/oof/context \\
+  --tokenizer-path models/oof/context/context_fold_0 \\
+  --output-dir results/context_target_token_retention \\
+  --n-splits 5 \\
+  --batch-size 256
+\`\`\`
+
+Outputs:
+- \`fold_summary.csv\`: fold/split and Human/Machine target-retention summaries.
+- \`stratified_summary.csv\`: target-length, previous-context-length, and
+  next-context-length strata, split by fold and label.
+- \`run_metadata.json\`: tokenizer class, truncation side, max length, counts,
+  and privacy/export guarantees.
+
+No row-level text, article identifiers, or sentence identifiers are written.
+The target-length buckets (1-70, 71-98, 99-130, >130 characters) follow the
+Fold 4 diagnosis boundaries. This audit diagnoses token retention; it does
+not itself establish that truncation caused Fold 4's ranking-metric decline.
+
+Do not retrain the five-fold models until the corrected Stacking aggregates and
+the Context token-retention report have been reviewed. If the audit shows
+material target-token loss, design a separate controlled truncation/window
+ablation rather than silently changing the frozen experiment.
