@@ -12,7 +12,7 @@ python scripts/analyze_context_harm_patterns.py \
 The script performs four analyses:
 
 1. Paired outcomes (both correct, both wrong, Context-only correct, Sentence-only correct), split by true class.
-2. Harm/help rates by target length and previous/next context length.
+2. Harm/help rates by target length and previous/next context length, plus paired per-row Brier/log-loss deltas to capture probability degradation even when the 0.5 class decision does not flip.
 3. Article-level concentration summaries. Article identifiers are used internally for grouping but are not exported.
 4. An exploratory risk-prediction experiment among rows where Sentence-only is correct: predict whether adding Context flips the correct prediction to an error. Logistic regression and ExtraTrees are evaluated with GroupKFold, keeping each article entirely within one split. Features are limited to inference-available model scores and text/context length/style statistics.
 
