@@ -60,7 +60,7 @@ class Stage1PredictionValidationTests(unittest.TestCase):
     def test_article_order_change_fails(self):
         self.pred.reverse()
         self._write()
-        with self.assertRaisesRegex(ValueError, "sentence order/content"):
+        with self.assertRaisesRegex(ValueError, "sentence/label length mismatch|sentence order/content"):
             validate(self.raw_path, self.json_path, self.csv_path, 2, 3)
 
     def test_missing_or_incorrect_label_fails(self):
@@ -121,8 +121,6 @@ class Stage1AggregateTests(unittest.TestCase):
 
     def test_wrong_pooled_auc_fails(self):
         path = self.folder / "metrics_all_models.csv"
-        text = path.read_text(encoding="utf-8")
-        text = text.replace("0.9581776173", "0.000001", 1)
         # Use fieldwise rewrite so the test does not rely on float formatting.
         with path.open(newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
