@@ -1,0 +1,5 @@
+outcome,rows,rate
+both_correct,9051,0.8555629076472256
+both_wrong,783,0.07401455714150676
+context_only_correct,375,0.035447584837886376
+sentence_only_correct,370,0.034974950373381226

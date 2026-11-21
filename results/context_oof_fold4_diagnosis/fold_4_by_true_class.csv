@@ -1,0 +1,3 @@
+true_class,rows,sentence_class_recall,context_class_recall,class_recall_delta,context_only_correct,sentence_only_correct
+Human,3547,0.7138426839582745,0.6924161263039188,-0.02142655765435575,267,343
+Machine,7032,0.9796643913538111,0.9911831626848692,0.011518771331058053,108,27
