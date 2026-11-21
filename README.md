@@ -215,13 +215,13 @@ running both audit scripts against the real project split/fold files.
 
 ### Step 1: Rebuild corrected Stacking aggregate analysis
 
-The analysis script uses \`stacker_p_machine\` for Stacking ranking metrics and
-per-fold standardized \`roberta_z\` / \`svm_z\` for the base models. Do not pool
+The analysis script uses `stacker_p_machine` for Stacking ranking metrics and
+per-fold standardized `roberta_z` / `svm_z` for the base models. Do not pool
 fold-local raw RoBERTa/SVM probabilities for ROC-AUC or Average Precision.
 
 Run the corrected analysis in aggregate-only mode:
 
-\`\`\`bash
+```bash
 python scripts/analyze_stacking_errors.py \\
   --input results/oof_fusion/novel_fusion_predictions.csv \\
   --output-dir results/stacking_error_analysis_corrected \\
@@ -229,7 +229,7 @@ python scripts/analyze_stacking_errors.py \\
   --bootstrap-reps 2000 \\
   --seed 42 \\
   --aggregate-only
-\`\`\`
+```
 
 This mode writes only aggregate metrics, length/domain summaries, paired
 McNemar results, cluster-bootstrap differences, the Stacker/RoBERTa correctness
@@ -240,15 +240,15 @@ tables. The output directory is ignored by Git by default.
 ### Step 2: Audit Context target-token retention before any retraining
 
 The Context OOF trainer tokenizes the serialized
-\`[PREVIOUS] ... [TARGET] ... [NEXT] ...\` input with truncation enabled and
-\`transformer.max_length\` (currently 256). The following audit uses fast-tokenizer
+`[PREVIOUS] ... [TARGET] ... [NEXT] ...` input with truncation enabled and
+`transformer.max_length` (currently 256). The following audit uses fast-tokenizer
 offset mappings to count target tokens before and after the same configured
 truncation operation for each fold's training and validation windows, plus the
 shared Novel Validation windows. It reports fold, split, label,
 target-character-length, previous-context-length, and next-context-length
 aggregates only.
 
-\`\`\`bash
+```bash
 python scripts/audit_context_target_token_retention.py \\
   --config configs/experiment.yaml \\
   --folds-dir data/context_oof_folds \\
@@ -257,13 +257,13 @@ python scripts/audit_context_target_token_retention.py \\
   --output-dir results/context_target_token_retention \\
   --n-splits 5 \\
   --batch-size 256
-\`\`\`
+```
 
 Outputs:
-- \`fold_summary.csv\`: fold/split and Human/Machine target-retention summaries.
-- \`stratified_summary.csv\`: target-length, previous-context-length, and
+- `fold_summary.csv`: fold/split and Human/Machine target-retention summaries.
+- `stratified_summary.csv`: target-length, previous-context-length, and
   next-context-length strata, split by fold and label.
-- \`run_metadata.json\`: tokenizer class, truncation side, max length, counts,
+- `run_metadata.json`: tokenizer class, truncation side, max length, counts,
   and privacy/export guarantees.
 
 No row-level text, article identifiers, or sentence identifiers are written.
@@ -281,18 +281,18 @@ ablation rather than silently changing the frozen experiment.
 
 After the required aggregate CSVs exist, run:
 
-\`\`\`bash
+```bash
 python scripts/build_baseline_comparison.py \\
   --results-dir results \\
   --output-dir results/analysis_review
-\`\`\`
+```
 
 This writes:
-- \`baseline_comparison.csv\`: SVM, RoBERTa, Stacking, Veto, Sentence-only,
-  and Context metrics with explicit \`protocol_id\`, dataset, threshold source,
+- `baseline_comparison.csv`: SVM, RoBERTa, Stacking, Veto, Sentence-only,
+  and Context metrics with explicit `protocol_id`, dataset, threshold source,
   and aggregation method. The current aggregate-source snapshot is also
   tracked as `results/analysis_review/baseline_comparison_reference.csv`.
-- \`context_fold_diagnostics.csv\`: all five matched Context/Sentence-only
+- `context_fold_diagnostics.csv`: all five matched Context/Sentence-only
   OOF folds, retaining Fold 4 rather than hiding it in a pooled mean.
 
 The table deliberately separates OOF cross-fit diagnostics, Fold-matched Novel
