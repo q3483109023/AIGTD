@@ -174,6 +174,8 @@ def build_comparison(
         "macro_f1": "macro_f1",
         "f1_human": "f1_human",
         "f1_machine": "f1_machine",
+        "precision_machine": "precision_machine",
+        "recall_machine": "recall_machine",
         "roc_auc": "roc_auc",
         "average_precision": "average_precision",
     }
