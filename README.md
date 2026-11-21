@@ -303,3 +303,36 @@ leaderboard. In particular, single-split SVM/RoBERTa thresholds were selected
 on Novel Validation and must not be compared as if they were untouched test
 results. Raw pooled Context AUC/AP and fold-standardized ranking AUC/AP are
 labelled as distinct score aggregation protocols.
+
+
+## Stage 1 handoff continuation (2026-11-22)
+
+Read `docs/baseline_protocol_and_results.md` for the protocol-separated,
+four-decimal baseline comparison, historical corrected-Stacking caveats,
+paired error transitions and Fold-4/context limitations.
+
+Read `docs/freeze_candidate.md` for the **candidate-not-yet-frozen**
+decision, private-server artifact inventory, corrected Stacking verification,
+two-article single-SVM dry-run, and full 500-article/4,264-sentence schema
+validation. This is the next small acceptance step; **do not retrain models**.
+
+New local-only checks:
+
+```bash
+python -m unittest tests/test_stage1_freeze.py -v
+python scripts/check_stage1_artifacts.py
+python scripts/verify_stacking_aggregates.py \
+  --analysis-dir results/stacking_error_analysis_corrected
+python scripts/validate_test_predictions.py \
+  --raw-test data/raw/AIGTD_test_without_labels.json \
+  --pred-json results/test_predictions.json \
+  --pred-csv results/test_predictions.csv
+```
+
+The two verifiers fail closed on missing, misaligned, or inconsistent outputs.
+These commands require the relevant local artifacts, which are intentionally
+not all present in the public GitHub tree. Running the synthetic tests alone
+does not prove the real data/model pipeline worked. The default `predict.py`
+neural inference requires locally retained weight files; its `fusion` option
+is **not** the OOF Stacking implementation. Unlabeled test predictions do
+not contain ground truth and have no legitimate test Accuracy/F1.
