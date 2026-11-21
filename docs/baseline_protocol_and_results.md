@@ -1,11 +1,11 @@
 # Stage 1 — Baseline protocols and observed results (2026-11-22)
 
-**Evidence:** aggregate files in this repository at PR #4 head (\`2e64862\`), including
-\`results/analysis_review/baseline_comparison_reference.csv\`,
-\`results/oof_fusion/metrics_comparison.csv\`,
-\`results/context_oof_analysis/metrics_by_fold.csv\`, and historical Stacking aggregates.
+**Evidence:** aggregate files in this repository at PR #4 head (`2e64862`), including
+`results/analysis_review/baseline_comparison_reference.csv`,
+`results/oof_fusion/metrics_comparison.csv`,
+`results/context_oof_analysis/metrics_by_fold.csv`, and historical Stacking aggregates.
 The 18-row protocol-labelled reference CSV is the machine-readable baseline
-snapshot. Run \`scripts/build_baseline_comparison.py\` for a new local snapshot.
+snapshot. Run `scripts/build_baseline_comparison.py` for a new local snapshot.
 
 **Interpretation:** all rows below are **development results**, not blind test
 results. Never rank different protocol IDs as one leaderboard. Positive class
@@ -39,7 +39,7 @@ bootstrap resamples sources but cannot eliminate all repeated-text dependence.
 **Re-run corrected aggregate-only analysis and verify it before citing its
 numerical output as a newly confirmed result.** The tracked older metrics file
 used *raw fold-local scores* for base-model AUC/AP; use the corrected script's
-fold-standardized \`roberta_z\`/\`svm_z\` instead.
+fold-standardized `roberta_z`/`svm_z` instead.
 
 ## B. Pooled five-fold OOF — historical SVM/RoBERTa/fusion protocol
 
@@ -92,7 +92,7 @@ near-perfect AUC/AP **must not** be treated as learned gating evidence.
 
 Run from project root with private artifacts available locally:
 
-\`\`\`bash
+```bash
 python scripts/analyze_stacking_errors.py \
   --input results/oof_fusion/novel_fusion_predictions.csv \
   --output-dir results/stacking_error_analysis_corrected \
@@ -106,7 +106,7 @@ python scripts/verify_stacking_aggregates.py \
 
 python scripts/build_baseline_comparison.py \
   --results-dir results --output-dir results/analysis_review
-\`\`\`
+```
 
 The verifier checks class confusion counts, accuracy/F1 arithmetic, agreement
 groups, McNemar counts, bootstrap structure, and **corrected fold-standardized
