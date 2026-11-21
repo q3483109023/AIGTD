@@ -53,8 +53,10 @@ def add_context_features(frame: pd.DataFrame) -> pd.DataFrame:
         for value in contexts:
             m = re.search(r"\[PREVIOUS\]\s*(.*?)\s*\[TARGET\]", value, flags=re.S)
             n = re.search(r"\[NEXT\]\s*(.*)$", value, flags=re.S)
-            prev.append(m.group(1).strip() if m else "")
-            nxt.append(n.group(1).strip() if n else "")
+            prev_value = m.group(1).strip() if m else ""
+            next_value = n.group(1).strip() if n else ""
+            prev.append("" if prev_value == "[START]" else prev_value)
+            nxt.append("" if next_value == "[END]" else next_value)
         out["previous_chars"] = pd.Series(prev, index=out.index).str.len()
         out["next_chars"] = pd.Series(nxt, index=out.index).str.len()
         out["has_previous"] = out["previous_chars"] > 0
@@ -213,8 +215,9 @@ def main() -> None:
     class_rows = []
     for label, g in frame.groupby("true_class", sort=True):
         row = {"true_class": label, "rows": int(len(g))}
-        row.update(classification_metrics(g, "sentence_pred", "sentence"))
-        row.update(classification_metrics(g, "context_pred", "context"))
+        row["sentence_class_recall"] = float(g["sentence_correct"].mean())
+        row["context_class_recall"] = float(g["context_correct"].mean())
+        row["class_recall_delta"] = row["context_class_recall"] - row["sentence_class_recall"]
         row["context_only_correct"] = int(g["outcome"].eq("context_only_correct").sum())
         row["sentence_only_correct"] = int(g["outcome"].eq("sentence_only_correct").sum())
         class_rows.append(row)
