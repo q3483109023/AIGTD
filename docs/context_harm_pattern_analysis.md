@@ -23,3 +23,20 @@ The script performs four analyses:
 - Compare average precision against the harm prevalence baseline. A useful risk model should improve AP and precision in the highest-risk deciles across article-held-out folds.
 - This is a Fold-4 exploratory analysis. It does not establish causality or generalization to other folds / Novel Validation. A gate should not be trained or claimed effective from these results alone.
 - Aggregate reports contain no sentence text, row IDs, or article identifiers. The script does not modify source predictions or model checkpoints.
+
+
+## Evidence correction (2026-11-22)
+
+**The exploratory learnability/risk-prediction numbers above are invalid as
+evidence for a deployable gate.** Rows were selected using Sentence-only
+correctness (a ground-truth-dependent predicate), and the risk label
+"Sentence correct, Context wrong" is nearly determined by model disagreement
+once both model scores are included as features. GroupKFold cannot repair
+that target-construction leak; near-perfect AP/AUC from this diagnostic are
+not acceptable performance claims.
+
+Retain the descriptive Fold-4 class/length/probability harm analyses. If a
+learned selector is later attempted, train on **all model-disagreement OOF
+rows selected without labels** and use the target "which model is correct",
+source-grouped development CV, and an all-rows evaluation. Even then Novel and
+previously explored Fold 4 are development resources, not blind test data.
