@@ -1,0 +1,15 @@
+{
+  "oof_rows_sentence": 52864,
+  "oof_rows_context": 52864,
+  "unique_oof_row_ids": 52864,
+  "folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "labels_match": true,
+  "folds_match": true,
+  "prediction_files_paired": true
+}
