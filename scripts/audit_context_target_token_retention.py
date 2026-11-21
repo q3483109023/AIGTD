@@ -322,13 +322,16 @@ def main() -> int:
     folds_dir = Path(args.folds_dir)
     all_measurements: list[dict[str, Any]] = []
     oof_row_ids: list[int] = []
-    oof_rows = 0
+    oof_training_rows = 0
+    oof_validation_rows = 0
 
     for fold in range(args.n_splits):
         fold_dir = folds_dir / f"fold_{fold}"
+        train_path = fold_dir / "train.csv"
         validation_path = fold_dir / "validation.csv"
-        if not validation_path.exists():
-            raise FileNotFoundError(validation_path)
+        for required_path in (train_path, validation_path):
+            if not required_path.exists():
+                raise FileNotFoundError(required_path)
 
         metadata_path = model_dir / f"context_fold_{fold}" / "oof_metadata.json"
         if metadata_path.exists():
@@ -345,11 +348,26 @@ def main() -> int:
                     f"Fold {fold} checkpoint input_column={input_column!r}, not context_text."
                 )
 
+        train = pd.read_csv(train_path, encoding="utf-8-sig")
+        if "oof_row_id" not in train:
+            raise ValueError(f"{train_path} is missing oof_row_id.")
+        oof_training_rows += len(train)
+        all_measurements.extend(
+            _measure_batch(
+                tokenizer,
+                train,
+                split="oof_training",
+                fold=str(fold),
+                max_length=max_length,
+                batch_size=args.batch_size,
+            )
+        )
+
         validation = pd.read_csv(validation_path, encoding="utf-8-sig")
         if "oof_row_id" not in validation:
             raise ValueError(f"{validation_path} is missing oof_row_id.")
         oof_row_ids.extend(validation["oof_row_id"].astype(int).tolist())
-        oof_rows += len(validation)
+        oof_validation_rows += len(validation)
         all_measurements.extend(
             _measure_batch(
                 tokenizer,
@@ -407,7 +425,8 @@ def main() -> int:
         "truncation_side": str(tokenizer.truncation_side),
         "max_length": max_length,
         "add_special_tokens": True,
-        "oof_validation_rows": int(oof_rows),
+        "oof_training_rows_across_folds": int(oof_training_rows),
+        "oof_validation_rows": int(oof_validation_rows),
         "unique_oof_row_ids": int(len(set(oof_row_ids))),
         "novel_validation_rows": int(len(novel)),
         "split_row_counts": split_counts,
