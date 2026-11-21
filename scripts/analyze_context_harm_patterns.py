@@ -236,7 +236,7 @@ def learnability_report(df: pd.DataFrame, out: Path, seed: int) -> dict:
             "model": name, "n": int(valid.sum()), "article_groups": n_groups,
             "harm_prevalence": prevalence,
             "average_precision": float(average_precision_score(yy, s)),
-            "roc_auc": float(roc_auc_score(yy, s)),
+            "roc_auc": float(roc_auc_score(yy, s)) if len(np.unique(yy)) == 2 else float("nan"),
             "precision_top_10pct": float(yy[np.argsort(s)[-max(1, int(np.ceil(.1*len(yy)))):]].mean()),
             "precision_top_20pct": float(yy[np.argsort(s)[-max(1, int(np.ceil(.2*len(yy)))):]].mean()),
         })
