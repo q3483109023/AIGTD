@@ -139,3 +139,5 @@ the pipeline is not yet accepted for test-time use. Do not call the model
 standardization, and final output are replay-validated. If insufficient time,
 choose a proven executable baseline, with its distinct evaluation protocol
 clearly disclosed. No test-set metric can be reported without labels.
+
+**CI update (2026-11-22):** Corrected Stacking aggregate recomputation and the new fail-closed verifier passed on the already-committed GitHub snapshot (run [#44924113524](https://github.com/q3483109023/AIGTD/actions/runs/44924113524)). This verifies the published development aggregate, **not** the local server checkpoints or test-time inference. Operational freeze status is unchanged.
