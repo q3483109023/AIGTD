@@ -385,3 +385,15 @@ aggregate findings and Machine-recall tradeoff. Results are **development
 OOF**, not an independent test or a fair direct ranking versus the
 different-protocol Stacking Novel Validation. Generated local outputs
 are ignored by Git.
+
+### E2 unchanged-rule Novel recheck (development only)
+
+`scripts/validate_e2_fixed_rule_novel.py` checks that the **unchanged**
+20-word Human-veto improves over the same strict-purge Context control on
+11,682 historical Novel targets, using both five-fold mean and label-free
+source-fold-matched predictions. It verifies historical mean-fold metrics,
+source pairing and thresholds before reporting aggregates.
+
+Full instructions, observed error tradeoffs and caveats:
+`docs/e2_fixed_rule_novel_recheck.md`. No new checkpoint or full-test
+prediction is produced, and Novel has already been used for development.
